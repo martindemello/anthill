@@ -80,8 +80,8 @@ let rec find chr node =
   (*printf "|  %d %c -> %d [%b]\n" node (letter node) (ptr node) (wordp node); *)
   let c = letter node in
   if (c == chr) then node
-  else if (c > chr) then 0
-  else if lastp node then 0
+  else if (c > chr) then raise Not_found 
+  else if lastp node then raise Not_found
   else (find chr (node + 1));;
 
 (**********************************************************
@@ -126,6 +126,9 @@ let mapsibs f p =
 
 let isword p = wordp p.node;;
 
+let wordof path = 
+  if (isword path) then [word path] else [];;
+
 let check str =
   let s = (String.length str - 1) in
   let rec walk n i =
@@ -136,31 +139,20 @@ let check str =
     walk start_node 0;;
 
 
-(* given a path, find all path+1 words *)
-let allwords path = 
-  let lst = ref [] in
-  forstep
-  (fun i -> if (isword i) then lst := (word i) :: !lst)
-  path;
-  List.rev !lst;;
-
-let terminator c path = 
-  match c with
-  | '.' -> allwords path
-  | _   -> if (isword (seek c path)) then [word path] else [];;
-
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
 let rec build trail path = 
-  let rest tr pth = build tr (step pth) in
-  if path.node = 0 then [] else
+  try
     match trail with
     | [] -> []
-    | [c] -> terminator c path
-    | c :: cs -> begin
-      match c with
-      | '.' -> List.flatten (mapsibs (rest cs) path)
-      | _   -> rest cs (seek c path)
-      end;;
+    | c :: cs -> match c with
+      | '.' -> List.flatten (mapsibs (follow cs) path)
+      | _   -> follow cs (seek c path)
+  with No_ptr -> [] | Not_found -> []
+and
+  follow tr pth = match tr with
+  [] -> wordof pth
+  |_  -> build tr (step pth)
+;;
 
 (***********************************************************************
  * anagrams
@@ -171,42 +163,42 @@ let rec build trail path =
 
 module Bag = Map.Make(struct type t = char let compare = compare end)
 
-let bag_add c m =
-  try let n = Bag.find c m in Bag.add c (succ n) m
-  with Not_found -> Bag.add c 1 m
+let bag_add letter bag =
+  try let n = Bag.find letter bag in Bag.add letter (succ n) bag 
+  with Not_found -> Bag.add letter 1 bag;;
 
-let bag_remove c m =
-  let n = Bag.find c m in 
-  if n = 1 then Bag.remove c m else Bag.add c (pred n) m
+let bag_remove letter bag =
+  let n = Bag.find letter bag in 
+  if n = 1 then Bag.remove letter bag else Bag.add letter (pred n) bag;;
+
+(* Remove a letter from a bag
+ * if the letter doesn't exist, try removing a blank *)
+let bag_play letter bag = 
+  try bag_remove letter bag
+  with Not_found -> bag_remove '.' bag;;
 
 let bag_of_string w =
   let n = String.length w in
   let rec add i = if i = n then Bag.empty else bag_add w.[i] (add (succ i)) in
   add 0
 
-let wordof path = 
-  if (isword path) then [word path] else [];;
-
 let rec anagrams bag path =
-  try List.flatten (mapsibs (follow_if bag) path)
-  with No_ptr -> []
+  List.flatten (mapsibs (follow_if bag) path)
 and follow_if bag path =
-  let follow bag path =
-    if bag = Bag.empty then wordof path 
-    else anagrams bag (step path)
-  in
-  let c = (letter path.node) in
-  try follow (bag_remove c bag) path
-  with Not_found ->
-    try follow (bag_remove '.' bag) path
-    with Not_found -> []
+  try 
+    let new_bag = bag_play (letter path.node) bag in
+    if new_bag = Bag.empty then wordof path 
+    else anagrams new_bag (step path)
+  with Not_found -> [] | No_ptr -> []
 ;;
 
-let _ = 
+(*let _ = 
   List.map (printf "%s\n") 
   (anagrams (bag_of_string "retinas") start);;
+*)
 
-(*
+
+
 let _ = 
   List.map (printf "%s\n") 
-  (build (explode "r.....s") start);;*)
+  (build (explode "ra.e") start);;
