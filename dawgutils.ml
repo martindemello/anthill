@@ -169,19 +169,19 @@ let rec build trail path =
 (* multiset implementation from  
  * http://www.lri.fr/~filliatr/ftp/ocaml/misc/anagram.ml.html *)
 
-module Cmap = Map.Make(struct type t = char let compare = compare end)
+module Bag = Map.Make(struct type t = char let compare = compare end)
 
-let ms_add c m =
-  try let n = Cmap.find c m in Cmap.add c (succ n) m
-  with Not_found -> Cmap.add c 1 m
+let bag_add c m =
+  try let n = Bag.find c m in Bag.add c (succ n) m
+  with Not_found -> Bag.add c 1 m
 
-let ms_remove c m =
-  let n = Cmap.find c m in 
-  if n = 1 then Cmap.remove c m else Cmap.add c (pred n) m
+let bag_remove c m =
+  let n = Bag.find c m in 
+  if n = 1 then Bag.remove c m else Bag.add c (pred n) m
 
-let ms_of_string w =
+let bag_of_string w =
   let n = String.length w in
-  let rec add i = if i = n then Cmap.empty else ms_add w.[i] (add (succ i)) in
+  let rec add i = if i = n then Bag.empty else bag_add w.[i] (add (succ i)) in
   add 0
 
 let wordof path = 
@@ -192,19 +192,19 @@ let rec anagrams bag path =
   with No_ptr -> []
 and follow_if bag path =
   let follow bag path =
-    if bag = Cmap.empty then wordof path 
+    if bag = Bag.empty then wordof path 
     else anagrams bag (step path)
   in
   let c = (letter path.node) in
-  try follow (ms_remove c bag) path
+  try follow (bag_remove c bag) path
   with Not_found ->
-    try follow (ms_remove '.' bag) path
+    try follow (bag_remove '.' bag) path
     with Not_found -> []
 ;;
 
 let _ = 
   List.map (printf "%s\n") 
-  (anagrams (ms_of_string "retinas") start);;
+  (anagrams (bag_of_string "retinas") start);;
 
 (*
 let _ = 
