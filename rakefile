@@ -1,0 +1,13 @@
+task :default => [:run]
+
+task :run => [:dawgutils] do
+  sh "./dawgutils"
+			  end
+
+task :dawgutils do
+  sh "ocamlc unix.cma bigarray.cma dawgutils.ml -o dawgutils"
+end
+
+task :old do
+  sh "ocamlc unix.cma bigarray.cma dawgutils.old.ml -o dawgutils.old"
+end
