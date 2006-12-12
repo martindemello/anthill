@@ -58,6 +58,9 @@ let explode str =
   String.iter (fun c -> lst := (c :: !lst)) str;
   List.rev !lst;;
 
+(**********************************************************
+ * Store words as reversed lists for efficiency
+ **********************************************************)
 let addchar str c =
   let len = String.length str in
   let retval = String.create (len + 1) in
@@ -69,6 +72,8 @@ let addchar str c =
 (**********************************************************
  * Node functions 
  **********************************************************)
+
+exception No_ptr;;
 
 (* scan the siblings of a node for a character *)
 let rec find chr node =
@@ -91,8 +96,10 @@ let start = { prefix = ""; node = start_node };;
 
 let word p = addchar p.prefix (letter p.node);;
 
-let step p = 
-  { prefix = word p; node = ptr p.node };;
+let step p =
+  match ptr p.node with
+  0 -> raise No_ptr
+  |_ -> { prefix = word p; node = ptr p.node };;
 
 let nsib p = 
   { prefix = p.prefix; node = p.node + 1 };;
@@ -112,7 +119,7 @@ let rec forstep f p =
   f p;
   if not (lastp p.node) then forstep f (nsib p);;
 
-let mapstep f p =
+let mapsibs f p =
   let lst = ref [] in
   forstep (fun i -> lst := (f i) :: !lst) p;
   List.rev !lst;;
@@ -151,7 +158,7 @@ let rec build trail path =
     | [c] -> terminator c path
     | c :: cs -> begin
       match c with
-      | '.' -> List.flatten (mapstep (rest cs) path)
+      | '.' -> List.flatten (mapsibs (rest cs) path)
       | _   -> rest cs (seek c path)
       end;;
 
@@ -181,33 +188,23 @@ let wordof path =
   if (isword path) then [word path] else [];;
 
 let rec anagrams bag path =
-  if path.node = 0 then [] 
-  else 
-    begin
-      let l = ref [] in
-      let augment new_bag node = 
-        l := if new_bag = Cmap.empty 
-        then (wordof node) @ !l
-        else (anagrams (new_bag) (step (node))) @ !l;
-        in
-        Cmap.iter (fun c _ -> 
-          let new_bag = (ms_remove c bag) in
-          match c with
-          | '.' -> forstep (fun char_node -> augment new_bag char_node) path;
-          |  _  -> 
-            begin
-              let char_node = (sib c path) in
-              match (char_node.node) with
-              | 0 -> (); 
-              | _ -> augment new_bag char_node
-              end
-        ) bag;
-        !l;
-            end;;
+  try List.flatten (mapsibs (follow_if bag) path)
+  with No_ptr -> []
+and follow_if bag path =
+  let follow bag path =
+    if bag = Cmap.empty then wordof path 
+    else anagrams bag (step path)
+  in
+  let c = (letter path.node) in
+  try follow (ms_remove c bag) path
+  with Not_found ->
+    try follow (ms_remove '.' bag) path
+    with Not_found -> []
+;;
 
 let _ = 
   List.map (printf "%s\n") 
-  (List.rev (anagrams (ms_of_string "pot.") start));;
+  (anagrams (ms_of_string "retinas") start);;
 
 (*
 let _ = 
