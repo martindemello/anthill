@@ -21,3 +21,4 @@ test.annot
 test.cmi
 test.cmo
 test.ml
+.*.swp$
