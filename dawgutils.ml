@@ -147,6 +147,13 @@ let display_string_list pref lst =
   d lst;
   printf "]"
 ;;
+
+let debug pref trail path = 
+  display_list pref trail;
+  display_path path;
+  printf("\n")
+;;
+
 (*************************************************************************
  * Actual user-facing utilities
  * ***********************************************************************)
@@ -163,22 +170,25 @@ let check str =
   walk start_node 0;;
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
-let rec pattern trail path =
-  let try_step tr pth =
-    try pattern tr (step pth)
-    with Not_found -> [];
-  in
-  let follow tr pth = 
-    match tr with
-    |[] -> word_of pth
-    |['*'] -> (word_of pth) @ try_step tr pth
-    |_  -> try_step tr pth    
-  in
-  match trail with
-  | [] -> []
-  | '.' :: cs -> collect_sibs (follow cs) path
-  | '*' :: cs -> (pattern cs path) @ (collect_sibs (follow trail) path)
-  | c :: cs   ->  follow cs (sib c path)
+let pattern trail path =
+  let retval = ref [] in
+  let add_word = function [] -> () | s::_ -> retval := s :: !retval in
+  let rec pattern' trail path =
+    let try_step tr pth = try pattern' tr (step pth) with Not_found -> () in
+    let follow tr pth = 
+      match tr with
+      |[]    -> add_word (word_of pth);
+      |['*'] -> ( add_word (word_of pth); try_step tr pth; )
+      |_     -> try_step tr pth    
+    in
+    match trail with
+    |[]        -> ();
+    |'.' :: cs -> forstep (follow cs) path
+    |'*' :: cs -> ( pattern' cs path; forstep (follow trail) path; )
+    |c   :: cs -> try follow cs (sib c path) with Not_found -> ()
+  in 
+    pattern' trail path;
+    List.rev !retval
 ;;
 
 (* Build all possible words from a bag and a dawg *
