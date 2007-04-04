@@ -13,8 +13,8 @@ let remove letter bag =
   else MultiSet.add letter (pred n) bag;;
 
 let play_blank bag =
-  try MultiSet.find '*' bag; bag
-  with Not_found -> remove '.' bag;;
+  try remove '.' bag
+  with Not_found -> MultiSet.find '*' bag; bag
 
 (* Remove a letter from a bag
  * if the letter doesn't exist, try removing a blank *)
