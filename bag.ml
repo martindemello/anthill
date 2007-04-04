@@ -12,11 +12,15 @@ let remove letter bag =
   if n = 1 then MultiSet.remove letter bag 
   else MultiSet.add letter (pred n) bag;;
 
+let play_blank bag =
+  try MultiSet.find '*' bag; bag
+  with Not_found -> remove '.' bag;;
+
 (* Remove a letter from a bag
  * if the letter doesn't exist, try removing a blank *)
 let play letter bag = 
   try remove letter bag
-  with Not_found -> remove '.' bag;;
+  with Not_found -> play_blank bag;;
 
 let of_string str =
   let bag = ref MultiSet.empty in
