@@ -211,6 +211,27 @@ let anagrams bag path = build bag path false;;
 
 let all_words bag path = build bag path true;;
 
+
+(*************************************************************************
+ * main() and friends
+ * ***********************************************************************)
+
+let readline prompt =
+  Ledit.set_prompt prompt;
+  let buf = Buffer.create 256 in
+  let rec loop c = match c with
+  | '\n' -> Buffer.contents buf
+  | _    -> Buffer.add_char buf c; loop (Ledit.input_char stdin)
+  in
+  loop (Ledit.input_char stdin);;
+
 let _ = 
-  List.map (printf "%s\n") 
-   (pattern (explode Sys.argv.(1)) start);;
+  print_endline "Hit Ctrl-D to exit";
+  print_endline "------------------";
+  flush stdout;
+  try while true do
+    let str = readline "sowpods > " in
+    List.iter (printf "%s\n") (anagrams (Bag.of_string str) start);
+    flush stdout;
+  done
+  with End_of_file -> print_newline ();;
