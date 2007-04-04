@@ -199,7 +199,7 @@ let build bag path all =
   and follow_if bag path =
     try 
       let new_bag = Bag.play (letter path.node) bag in
-      if new_bag = Bag.empty then word_of path 
+      if Bag.is_empty new_bag then word_of path 
       else 
         (if all then (word_of path) else []) @ traverse new_bag (step path)
     with Not_found -> []
