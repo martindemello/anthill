@@ -16,13 +16,13 @@ let remove letter bag =
 
 let remove_blank bag =
   try remove '.' bag
-  with Not_found -> MultiSet.find '*' bag; bag;;
+  with Not_found -> let _ = MultiSet.find '*' bag in bag;;
 
 (* Remove a letter from a bag
  * if the letter doesn't exist, try removing a blank *)
 let play letter bag = 
-  try remove letter bag
-  with Not_found -> remove_blank bag;;
+  try (remove letter bag, letter)
+  with Not_found -> (remove_blank bag, '.');;
 
 let of_string str =
   let bag = ref MultiSet.empty in

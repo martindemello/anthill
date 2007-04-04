@@ -95,6 +95,15 @@ let step p =
   0 -> raise Not_found
   |_ -> { prefix = word p; node = ptr p.node };;
 
+let uword p u = match u with
+| '.' -> addchar p.prefix (Char.uppercase (letter p.node))
+| _   -> addchar p.prefix (letter p.node);;
+
+let ustep p u =
+  match ptr p.node with
+  0 -> raise Not_found
+  |_ -> { prefix = uword p u; node = ptr p.node };;
+
 let next_sib p =
   if lastp p.node then raise Not_found
   else { prefix = p.prefix; node = p.node + 1 };;
@@ -119,6 +128,8 @@ let is_word p = wordp p.node;;
 let word_of path = 
   if (is_word path) then [word path] else [];;
 
+let uword_of path u = 
+  if (is_word path) then [uword path u] else [];;
 (*************************************************************************
  * debug
  * ***********************************************************************)
@@ -198,10 +209,10 @@ let build bag path all =
     collect_sibs (follow_if bag) path
   and follow_if bag path =
     try 
-      let new_bag = Bag.play (letter path.node) bag in
-      if Bag.is_empty new_bag then word_of path 
+      let new_bag, played = Bag.play (letter path.node) bag in
+      if Bag.is_empty new_bag then uword_of path played
       else 
-        (if all then (word_of path) else []) @ traverse new_bag (step path)
+        (if all then (uword_of path played) else []) @ traverse new_bag (ustep path played)
     with Not_found -> []
  in
  traverse bag path
