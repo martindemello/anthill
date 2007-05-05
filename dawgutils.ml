@@ -25,6 +25,7 @@
  * Requires: 
  *   unix.cma
  *   bigarray.cma
+ *   str.cma
  *************************************************************************)
 
 open Bigarray
@@ -202,26 +203,47 @@ let pattern trail path =
     List.rev !retval
 ;;
 
+
 (* Build all possible words from a bag and a dawg *
- * if all = false, return only words using the entire bag *)
+ * if all = false, return only words using the entire bag 
+ *
+ * TODO: same 'too-generous exception' fix that pattern needed
+ * *)
 let build bag path all =
+  let retval = ref [] in
+  let add_word = function [] -> () | s::_ -> retval := s :: !retval in
   let rec traverse bag path =
-    collect_sibs (follow_if bag) path
+    forstep (follow_if bag) path
   and follow_if bag path =
     try 
       let new_bag, played = Bag.play (letter path.node) bag in
-      if Bag.is_empty new_bag then uword_of path played
+      if Bag.is_empty new_bag then add_word (uword_of path played)
       else 
-        (if all then (uword_of path played) else []) @ traverse new_bag (ustep path played)
-    with Not_found -> []
+        (if all then add_word (uword_of path played) else ());
+        traverse new_bag (ustep path played)
+    with Not_found -> ()
  in
- traverse bag path
+ traverse bag path;
+ List.rev !retval
 ;;
 
 let anagrams bag path = build bag path false;;
 
 let all_words bag path = build bag path true;;
 
+(*************************************************************************
+ * list transformation and display
+ * ***********************************************************************)
+
+let caps_in str =
+  let lst = ref [] in
+  String.iter 
+  (fun c -> if ((c <= 'Z') && (c >= 'A')) then lst := (c :: !lst) else ()) 
+  str;
+  List.sort compare (List.rev !lst);;
+
+let sort_by f l = 
+  List.map snd (List.sort compare (List.map (fun x -> f x, x) l));;
 
 (*************************************************************************
  * main() and friends
@@ -242,7 +264,16 @@ let _ =
   flush stdout;
   try while true do
     let str = readline "sowpods > " in
-    List.iter (printf "%s\n") (anagrams (Bag.of_string str) start);
+
+    match str with
+    | RE "{" (_* as anag) "}" ->
+      List.iter (printf "%s\n") 
+      (sort_by caps_in (anagrams (Bag.of_string anag) start));
+    | RE "[" (_* as patt) "]" ->
+      List.iter (printf "%s\n") 
+      (sort_by caps_in (build (Bag.of_string patt) start));
+    | _ -> ();
+
     flush stdout;
   done
   with End_of_file -> print_newline ();;
