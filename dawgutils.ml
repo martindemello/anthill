@@ -1,3 +1,4 @@
+(*pp $PP *)
 (**
 *
 *  DAWG.H
@@ -245,6 +246,15 @@ let caps_in str =
 let sort_by f l = 
   List.map snd (List.sort compare (List.map (fun x -> f x, x) l));;
 
+
+(*************************************************************************
+ * high level string -> [string] interface
+ * ***********************************************************************)
+
+let anagrams_of_string str = anagrams (Bag.of_string str) start;;
+
+let pattern_of_string str = pattern (explode str) start;;
+
 (*************************************************************************
  * main() and friends
  * ***********************************************************************)
@@ -265,15 +275,14 @@ let _ =
   try while true do
     let str = readline "sowpods > " in
 
-    match str with
-    | RE "{" (_* as anag) "}" ->
-      List.iter (printf "%s\n") 
-      (sort_by caps_in (anagrams (Bag.of_string anag) start));
-    | RE "[" (_* as patt) "]" ->
-      List.iter (printf "%s\n") 
-      (sort_by caps_in (build (Bag.of_string patt) start));
-    | _ -> ();
-
+    let output = match str with
+    | RE "{" (_* as anag) "}" -> anagrams_of_string anag
+    | RE ['a' 'A'] space (_* as anag) -> anagrams_of_string anag
+    | RE "[" (_* as patt) "]" -> pattern_of_string patt
+    | RE ['p' 'P'] space (_* as patt) -> pattern_of_string patt
+    | _ -> [];
+    in
+    List.iter (printf "%s\n") (sort_by caps_in output);
     flush stdout;
   done
   with End_of_file -> print_newline ();;
