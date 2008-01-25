@@ -33,7 +33,7 @@ open Bigarray
 open Printf
 
 let dawg = 
-  let fd = Unix.openfile "sowpods.dwg" [ Unix.O_RDONLY ] 0 in
+  let fd = Unix.openfile "csw.dwg" [ Unix.O_RDONLY ] 0 in
   Array1.map_file fd int32 c_layout false (-1);;
 
 (* bitfield accessors *)
