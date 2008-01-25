@@ -1,10 +1,10 @@
-RESULT = dawgutils
+RESULT = varix
 
 SOURCES = \
 					bag.mli bag.ml \
 					cursor.ml \
 					ledit.mli ledit.ml \
-					dawgutils.ml
+					varix.ml
 
 LIBS = unix bigarray str pcre run_micmatch_pcre
 PACKS = unix bigarray str micmatch_pcre pcre
