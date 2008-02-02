@@ -22,3 +22,7 @@ test.cmi
 test.cmo
 test.ml
 .*.swp$
+.*\.d.?
+.*\.cm.?
+.*\.a
+.*\.o
