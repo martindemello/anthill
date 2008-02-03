@@ -3,9 +3,10 @@ RESULT = varix
 SOURCES = \
 					utility.ml\
 					dawg.ml bag.ml \
+					search.ml \
+					debug.ml \
 					cursor.ml \
 					ledit.mli ledit.ml \
-					debug.ml \
 					varix.ml
 
 LIBS = unix bigarray str pcre run_micmatch_pcre
