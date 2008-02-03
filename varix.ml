@@ -13,21 +13,6 @@ include Dawg
 include Search
 
 (*************************************************************************
- * list transformation and display
- * ***********************************************************************)
-
-let caps_in str =
-  let lst = ref [] in
-  String.iter 
-  (fun c -> if ((c <= 'Z') && (c >= 'A')) then lst := (c :: !lst) else ()) 
-  str;
-  List.sort compare (List.rev !lst);;
-
-let sort_by f l = 
-  List.map snd (List.sort compare (List.map (fun x -> f x, x) l));;
-
-
-(*************************************************************************
  * high level string -> [string] interface
  * ***********************************************************************)
 
