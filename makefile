@@ -1,6 +1,7 @@
 RESULT = varix
 
 SOURCES = \
+					dawg.ml \
 					bag.mli bag.ml \
 					cursor.ml \
 					ledit.mli ledit.ml \
