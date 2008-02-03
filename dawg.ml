@@ -22,15 +22,9 @@
 *
 **)
 
-(*************************************************************************
- * Requires: 
- *   unix.cma
- *   bigarray.cma
- *   str.cma
- *************************************************************************)
-
 open Bigarray
 open Printf
+include Utility
 
 let dawg = 
   let fd = Unix.openfile "csw.dwg" [ Unix.O_RDONLY ] 0 in
@@ -52,3 +46,68 @@ let lastp ix = _lastp dawg.{ix};;
 let wordp ix = _wordp dawg.{ix};;
 let letter ix = _letter dawg.{ix};;
 let ptr ix = _ptr dawg.{ix};;
+
+(**********************************************************
+ * Node functions 
+ **********************************************************)
+
+(* scan the siblings of a node for a character *)
+let rec find chr node =
+  let c = letter node in
+  if (c == chr) then node
+  else if (c > chr) then raise Not_found 
+  else if lastp node then raise Not_found
+  else (find chr (node + 1));;
+
+(**********************************************************
+ * Path functions 
+ **********************************************************)
+
+(* hold a prefix string and a node *)
+
+type path = { prefix: string; node: int };;
+
+let start = { prefix = ""; node = start_node };;
+
+let word p = addchar p.prefix (letter p.node);;
+
+let step p =
+  match ptr p.node with
+  0 -> raise Not_found
+  |_ -> { prefix = word p; node = ptr p.node };;
+
+let uword p u = match u with
+| '.' -> addchar p.prefix (Char.uppercase (letter p.node))
+| _   -> addchar p.prefix (letter p.node);;
+
+let ustep p u =
+  match ptr p.node with
+  0 -> raise Not_found
+  |_ -> { prefix = uword p u; node = ptr p.node };;
+
+let next_sib p =
+  if lastp p.node then raise Not_found
+  else { prefix = p.prefix; node = p.node + 1 };;
+
+let sib c p =
+  { prefix = p.prefix; node = find c p.node };;
+
+let rec forstep f p =
+  f p;
+  if not (lastp p.node) then forstep f (next_sib p);;
+
+let map_sibs f p =
+  let lst = ref [] in
+  forstep (fun i -> lst := (f i) :: !lst) p;
+  List.rev !lst;;
+
+let collect_sibs f p =
+  List.flatten (map_sibs f p);;
+
+let is_word p = wordp p.node;;
+
+let word_of path = 
+  if (is_word path) then [word path] else [];;
+
+let uword_of path u = 
+  if (is_word path) then [uword path u] else [];;

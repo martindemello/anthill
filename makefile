@@ -1,10 +1,11 @@
 RESULT = varix
 
 SOURCES = \
-					dawg.ml \
-					bag.mli bag.ml \
+					utility.ml\
+					dawg.ml bag.ml \
 					cursor.ml \
 					ledit.mli ledit.ml \
+					debug.ml \
 					varix.ml
 
 LIBS = unix bigarray str pcre run_micmatch_pcre
