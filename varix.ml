@@ -26,11 +26,16 @@ let build_of_string str = all_words (Bag.of_string str) start;;
  * main() and friends
  * ***********************************************************************)
 
-type eval = { desc: string; proc: string -> string list };;
+type eval = { 
+  desc: string; 
+  proc: string -> string list;
+  sort: string list -> string list;
+};;
 
-let anag = { desc = "anagram > "; proc = anagrams_of_string };;
-let patt = { desc = "pattern > "; proc = patterns_of_string };;
-let rack = { desc = "build > ";   proc = build_of_string };;
+let anag, patt, rack = 
+  { desc = "anagram > "; proc = anagrams_of_string; sort = sort_by caps_in; },
+  { desc = "pattern > "; proc = patterns_of_string; sort = sort_by caps_in; },
+  { desc = "build > "; proc = build_of_string; sort = sort_by String.length; }
 
 let readline prompt =
   Ledit.set_prompt prompt;
@@ -62,7 +67,7 @@ let _ =
       | RE ['b' 'B'] space (_* as inp) -> cur := rack; inp
       | _ -> str
       in
-      List.iter (printf "%s\n") (sort_by caps_in (!cur.proc input));
+      List.iter (printf "%s\n") (!cur.sort (!cur.proc input));
       flush stdout;
     done
       with End_of_file -> print_newline ();;
