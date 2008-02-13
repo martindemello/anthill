@@ -47,8 +47,8 @@ let readline prompt =
   loop (Ledit.input_char stdin);;
 
 let print_instructions = 
-  print_endline "Anagram: {letters} or a letters";
-  print_endline "Pattern: [letters] or p letters";
+  print_endline "Anagram: a letters";
+  print_endline "Pattern: p letters";
   print_endline "Build: b letters";
   print_endline "Use . for a blank and * for any number of blanks";
   print_endline "";
@@ -64,8 +64,6 @@ let _ =
     while true do
       let str = readline !cur.desc in
       let input = match str with
-      | RE "{" (_* as inp) "}" -> cur := anag; inp
-      | RE "[" (_* as inp) "]" -> cur := patt; inp
       | RE ['a' 'A'] space (_* as inp) -> cur := anag; inp
       | RE ['p' 'P'] space (_* as inp) -> cur := patt; inp
       | RE ['b' 'B'] space (_* as inp) -> cur := rack; inp
