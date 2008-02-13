@@ -59,6 +59,7 @@ let print_instructions =
 let _ = 
   print_instructions;
   let cur = ref anag in
+  let stack = Stack.create () in
   try 
     while true do
       let str = readline !cur.desc in
@@ -70,7 +71,10 @@ let _ =
       | RE ['b' 'B'] space (_* as inp) -> cur := rack; inp
       | _ -> str
       in
-      List.iter (printf "%s\n") (!cur.sort (!cur.proc input));
+      let result = (!cur.sort (!cur.proc input)) in
+      Stack.push result stack;
+      List.iter (printf "%s\n") result;
+      printf "%d\n" (Stack.length stack);
       flush stdout;
     done
       with End_of_file -> print_newline ();;
