@@ -11,6 +11,7 @@ open Printf
 open Debug
 include Dawg
 include Search
+include Sset
 
 (*************************************************************************
  * high level string -> [string] interface
@@ -23,14 +24,73 @@ let patterns_of_string str = pattern (explode str) start;;
 let build_of_string str = all_words (Bag.of_string str) start;;
 
 (*************************************************************************
- * main() and friends
+ * Cstack 
  * ***********************************************************************)
-
 type eval = { 
   desc: string; 
   proc: string -> string list;
   sort: string list -> string list;
 };;
+
+type op = Union | Inter;;
+
+type elem = Nop | Primitive of eval * string | Op of op | Words of string list 
+
+let list_of_elem e =
+  match e with
+  | Words li -> li
+  | _ -> failwith "not a wordlist"
+
+let set_of_elem e = 
+  Sset.of_list (list_of_elem e)
+
+let top3 stack = 
+  let a = Stack.pop stack in
+  let b = Stack.pop stack in
+  let c = Stack.pop stack in
+  (a, b, c)
+
+let set_op sop stack = 
+  let _, l1, l2 = top3 stack in
+  let s1, s2 = set_of_elem l1, set_of_elem l2 in
+  let s = sop s1 s2 in
+  let words = Words (to_list s) in
+  Stack.push words stack; stack
+
+let union stack =
+  set_op (StringSet.union) stack
+
+let inter stack =
+  set_op StringSet.inter stack
+
+let run stack =
+  match Stack.pop stack with
+  | Primitive (e, i) ->
+      let result = (e.sort (e.proc i)) in
+      Stack.push (Words result) stack; stack
+  | _ -> failwith "called run with nonprimitive"
+
+let display_top stack =
+  let top = Stack.top stack in 
+  match top with
+  | Words ws        -> List.iter (printf "%s\n") ws
+  | Primitive (e,i) -> printf "(%s %s)\n" e.desc i
+  | Op Union        -> printf "-or-\n"
+  | Op Inter        -> printf "-and-\n"
+  | Nop             -> printf "[]\n"
+
+let process stack = 
+  let top = Stack.top stack in 
+  match top with
+  | Words _         -> stack
+  | Primitive (_,_) -> run stack
+  | Op Union        -> union stack
+  | Op Inter        -> inter stack
+  | Nop             -> Stack.pop stack; stack
+      
+(*************************************************************************
+ * main() and friends
+ * ***********************************************************************)
 
 let anag, patt, rack = 
   { desc = "anagram > "; proc = anagrams_of_string; sort = sort_by caps_in; },
@@ -62,17 +122,24 @@ let _ =
   let stack = Stack.create () in
   try 
     while true do
-      let str = readline !cur.desc in
-      let input = match str with
-      | RE ['a' 'A'] space (_* as inp) -> cur := anag; inp
-      | RE ['p' 'P'] space (_* as inp) -> cur := patt; inp
-      | RE ['b' 'B'] space (_* as inp) -> cur := rack; inp
-      | _ -> str
-      in
-      let result = (!cur.sort (!cur.proc input)) in
-      Stack.push result stack;
-      List.iter (printf "%s\n") result;
+      try
+        let str = readline !cur.desc in
+        let thunk = match str with
+        | RE ['a' 'A'] space (_* as inp) -> cur := anag; Primitive(!cur, inp)
+        | RE ['p' 'P'] space (_* as inp) -> cur := patt; Primitive(!cur, inp)
+        | RE ['b' 'B'] space (_* as inp) -> cur := rack; Primitive(!cur, inp)
+        | RE "and" -> Op Inter
+        | RE "or" -> Op Union
+        | _ -> Nop
+        in
+        Stack.push thunk stack;
+        process stack;
+        display_top stack;
+        flush stdout;
+        with Stack.Empty -> printf("Nothing to do!\n");
+
       printf "%d\n" (Stack.length stack);
       flush stdout;
     done
-      with End_of_file -> print_newline ();;
+      with End_of_file -> print_newline ();
+

@@ -1,5 +1,5 @@
-type op = Union | Inter;;
-type elem = Op of op | Words of string list;;
+(*type op = Union | Inter;;*)
+(*type elem = Op of op | Words of string list;;*)
 
 let top3 stack = 
   let a = Stack.pop stack in

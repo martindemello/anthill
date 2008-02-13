@@ -2,7 +2,7 @@ RESULT = varix
 
 SOURCES = \
 					utility.ml\
-					dawg.ml bag.ml \
+					dawg.ml bag.ml sset.ml\
 					search.ml \
 					debug.ml \
 					cursor.ml \
