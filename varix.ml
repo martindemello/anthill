@@ -46,7 +46,7 @@ let readline prompt =
   in
   loop (Ledit.input_char stdin);;
 
-let _ = 
+let print_instructions = 
   print_endline "Anagram: {letters} or a letters";
   print_endline "Pattern: [letters] or p letters";
   print_endline "Build: b letters";
@@ -54,7 +54,10 @@ let _ =
   print_endline "";
   print_endline "Hit Ctrl-D to exit";
   print_endline "------------------------------------------------";
-  flush stdout;
+  flush stdout
+
+let _ = 
+  print_instructions;
   let cur = ref anag in
   try 
     while true do
