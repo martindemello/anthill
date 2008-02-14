@@ -116,6 +116,13 @@ let print_instructions =
   print_endline "------------------------------------------------";
   flush stdout
 
+(* ---------------------------------------------------
+ * Regular expressions
+ * --------------------------------------------------- *)
+
+RE tile = alpha | ['.' '*']
+RE rack = tile*
+
 let _ = 
   print_instructions;
   let cur = ref anag in
@@ -125,12 +132,12 @@ let _ =
       try
         let str = readline !cur.desc in
         let thunk = match str with
-        | RE ['a' 'A'] space (_* as inp) -> cur := anag; Primitive(!cur, inp)
-        | RE ['p' 'P'] space (_* as inp) -> cur := patt; Primitive(!cur, inp)
-        | RE ['b' 'B'] space (_* as inp) -> cur := rack; Primitive(!cur, inp)
+        | RE ['a' 'A'] space (rack as inp) -> cur := anag; Primitive(!cur, inp)
+        | RE ['p' 'P'] space (rack as inp) -> cur := patt; Primitive(!cur, inp)
+        | RE ['b' 'B'] space (rack as inp) -> cur := rack; Primitive(!cur, inp)
         | RE "and" -> Op Inter
         | RE "or" -> Op Union
-        | RE (alpha+ as inp) -> Primitive(!cur, inp)
+        | RE (rack as inp) -> Primitive(!cur, inp)
         | _ -> Nop
         in
         Stack.push thunk stack;
