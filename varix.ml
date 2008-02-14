@@ -130,6 +130,7 @@ let _ =
         | RE ['b' 'B'] space (_* as inp) -> cur := rack; Primitive(!cur, inp)
         | RE "and" -> Op Inter
         | RE "or" -> Op Union
+        | RE (alpha+ as inp) -> Primitive(!cur, inp)
         | _ -> Nop
         in
         Stack.push thunk stack;
