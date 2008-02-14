@@ -116,12 +116,20 @@ let print_instructions =
   print_endline "------------------------------------------------";
   flush stdout
 
+let eval_of op = 
+  match op with
+  | "A" | "a" -> anag
+  | "P" | "p" -> patt
+  | "B" | "b" -> rack
+  | _ -> failwith "no such operation!"
+
 (* ---------------------------------------------------
  * Regular expressions
  * --------------------------------------------------- *)
 
 RE tile = alpha | ['.' '*']
 RE rack = tile*
+RE op = ['A' 'a' 'P' 'p' 'B' 'b']
 
 let _ = 
   print_instructions;
@@ -132,9 +140,8 @@ let _ =
       try
         let str = readline !cur.desc in
         let thunk = match str with
-        | RE ['a' 'A'] space (rack as inp) -> cur := anag; Primitive(!cur, inp)
-        | RE ['p' 'P'] space (rack as inp) -> cur := patt; Primitive(!cur, inp)
-        | RE ['b' 'B'] space (rack as inp) -> cur := rack; Primitive(!cur, inp)
+        | RE (op as op) space (rack as inp) -> 
+            cur := eval_of op; Primitive(!cur, inp)
         | RE "and" -> Op Inter
         | RE "or" -> Op Union
         | RE (rack as inp) -> Primitive(!cur, inp)
