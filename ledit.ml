@@ -1,4 +1,4 @@
-(*pp camlp5r -I /home/martin/code/ocaml/varix pa_local.cmo *)
+(*pp camlp5r -I . pa_local.cmo *)
 (***********************************************************************)
 (*                                                                     *)
 (*                               Ledit                                 *)
