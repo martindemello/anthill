@@ -1,16 +1,16 @@
-(*pp camlp4r *)
+(*pp camlp5r *)
 (***********************************************************************)
 (*                                                                     *)
 (*                               Ledit                                 *)
 (*                                                                     *)
-(*       Daniel de Rauglaudre, projet Cristal, INRIA Rocquencourt      *)
+(*                Daniel de Rauglaudre, INRIA Rocquencourt             *)
 (*                                                                     *)
-(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
-(*  Automatique.  Distributed only by permission.                      *)
+(*  Copyright 2001-2008 Institut National de Recherche en Informatique *)
+(*  et Automatique.  Distributed only by permission.                   *)
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: cursor.mli,v 1.4 2001/07/03 11:38:53 ddr Exp $ *)
+(* $Id: cursor.mli,v 1.7 2008/01/01 18:46:28 deraugla Exp $ *)
 
 type t 'a = 'x;
 

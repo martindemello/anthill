@@ -1,16 +1,19 @@
-(*pp camlp4r pa_extend.cmo q_MLast.cmo -loc loc *)
+(*pp camlp5r pa_extend.cmo q_MLast.cmo -loc loc *)
 (***********************************************************************)
 (*                                                                     *)
 (*                               Ledit                                 *)
 (*                                                                     *)
-(*       Daniel de Rauglaudre, projet Cristal, INRIA Rocquencourt      *)
+(*               Daniel de Rauglaudre, INRIA Rocquencourt              *)
 (*                                                                     *)
-(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
-(*  Automatique.  Distributed only by permission.                      *)
+(*  Copyright 2001-2007 Institut National de Recherche en Informatique *)
+(*  et Automatique.  Distributed only by permission.                   *)
 (*                                                                     *)
 (***********************************************************************)
 
-(* $Id: pa_local.ml,v 1.4 2001/06/16 08:50:02 ddr Exp $ *)
+(* $Id: pa_local.ml,v 1.4 2007/01/03 09:42:46 deraugla Exp $ *)
+
+#load "pa_extend.cmo";
+#load "q_MLast.cmo";
 
 open Pcaml;
 
@@ -31,8 +34,8 @@ EXTEND
           let el = List.map expr_of_patt pl in
           <:str_item<
            value ($list:pl$) =
-             let $rec:rf$ $list:lb$ in
-             let $rec:rf1$ $list:lb1$ in
+             let $opt:rf$ $list:lb$ in
+             let $opt:rf1$ $list:lb1$ in
              ($list:el$) >> ] ]
   ;
 END;

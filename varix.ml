@@ -101,8 +101,8 @@ let readline prompt =
   Ledit.set_prompt prompt;
   let buf = Buffer.create 256 in
   let rec loop c = match c with
-  | '\n' -> Buffer.contents buf
-  | _    -> Buffer.add_char buf c; loop (Ledit.input_char stdin)
+  | "\n" -> Buffer.contents buf
+  | _    -> Buffer.add_string buf c; loop (Ledit.input_char stdin)
   in
   loop (Ledit.input_char stdin);;
 
@@ -117,10 +117,10 @@ let print_instructions =
   flush stdout
 
 let eval_of op = 
-  match op with
-  | "A" | "a" -> anag
-  | "P" | "p" -> patt
-  | "B" | "b" -> rack
+  match (String.lowercase op) with
+  | "a" -> anag
+  | "p" -> patt
+  | "b" -> rack
   | _ -> failwith "no such operation!"
 
 (* ---------------------------------------------------
@@ -129,7 +129,7 @@ let eval_of op =
 
 RE tile = alpha | ['.' '*']
 RE rack = tile*
-RE op = ['A' 'a' 'P' 'p' 'B' 'b']
+RE unary = ['A' 'a' 'P' 'p' 'B' 'b']
 
 let _ = 
   print_instructions;
@@ -140,7 +140,7 @@ let _ =
       try
         let str = readline !cur.desc in
         let thunk = match str with
-        | RE (op as op) space (rack as inp) -> 
+        | RE (unary as op) space (rack as inp) -> 
             cur := eval_of op; Primitive(!cur, inp)
         | RE "and" -> Op Inter
         | RE "or" -> Op Union
