@@ -141,8 +141,8 @@ let _ =
         let thunk = match str with
         | RE (unary as op) space (rack as inp) -> 
             cur := eval_of op; Primitive(!cur, inp)
-        | RE "and" -> Op Inter
-        | RE "or" -> Op Union
+        | RE bol "and" eol -> Op Inter
+        | RE bol "or" eol  -> Op Union
         | RE (rack as inp) -> Primitive(!cur, inp)
         | _ -> Nop
         in
