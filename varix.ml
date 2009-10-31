@@ -31,7 +31,7 @@ type eval = {
   sort: string list -> string list;
 };;
 
-type op = Union | Inter;;
+type op = Union | Inter | Diff ;;
 
 type elem = Nop | Primitive of eval * string | Op of op | Words of string list 
 
@@ -57,10 +57,13 @@ let set_op sop stack =
   Stack.push words stack; stack
 
 let union stack =
-  set_op (StringSet.union) stack
+  set_op StringSet.union stack
 
 let inter stack =
   set_op StringSet.inter stack
+
+let diff stack =
+  set_op StringSet.diff stack
 
 let run stack =
   match Stack.pop stack with
@@ -76,6 +79,7 @@ let display_top stack =
   | Primitive (e,i) -> printf "(%s %s)\n" e.desc i
   | Op Union        -> printf "-or-\n"
   | Op Inter        -> printf "-and-\n"
+  | Op Diff         -> printf "-diff-\n"
   | Nop             -> printf "[]\n"
 
 let process stack = 
@@ -85,6 +89,7 @@ let process stack =
   | Primitive (_,_) -> run stack
   | Op Union        -> union stack
   | Op Inter        -> inter stack
+  | Op Diff         -> diff  stack
   | Nop             -> Stack.pop stack; stack
       
 (*************************************************************************
@@ -141,9 +146,10 @@ let _ =
         let thunk = match str with
         | RE (unary as op) space (rack as inp) -> 
             cur := eval_of op; Primitive(!cur, inp)
-        | RE bol "and" eol -> Op Inter
-        | RE bol "or" eol  -> Op Union
-        | RE (rack as inp) -> Primitive(!cur, inp)
+        | RE bol "and" eol  -> Op Inter
+        | RE bol "or" eol   -> Op Union
+        | RE bol "diff" eol -> Op Diff
+        | RE (rack as inp)  -> Primitive(!cur, inp)
         | _ -> Nop
         in
         Stack.push thunk stack;
