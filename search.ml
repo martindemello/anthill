@@ -17,9 +17,9 @@ let check str =
 
 let collecting traversal =
   let retval = ref [] in
-  let add_word = function [] -> () | s::_ -> retval := s :: !retval in
+  let add_word = function None -> () | Some s -> retval := s :: !retval in
   traversal add_word;
-  List.rev !retval
+  Sset.to_list (Sset.of_list !retval)
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
 let pattern trail path =

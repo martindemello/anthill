@@ -99,7 +99,7 @@ let rec foreach_sib f p =
 let is_word p = wordp p.node;;
 
 let word_of path =
-  if (is_word path) then [word path] else [];;
+  if (is_word path) then Some(word path) else None;;
 
 let uword_of path u =
-  if (is_word path) then [uword path u] else [];;
+  if (is_word path) then Some(uword path u) else None;;
