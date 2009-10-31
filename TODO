@@ -1,3 +1,5 @@
-start a sourceforge project
-gitsvn
-sets and sets
+- Variables
+  - persistence to disk
+
+- Proper language, with variables and control flow
+- Commandline invocation of scripts
