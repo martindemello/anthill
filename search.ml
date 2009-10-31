@@ -48,11 +48,13 @@ let build bag path all =
     let rec traverse bag path =
       foreach_sib (follow bag) path
     and follow bag path =
-      let new_bag, played = Bag.play (letter path.node) bag in
-      if Bag.is_empty new_bag then add_word (uword_of path played)
-      else
-        (if all then add_word (uword_of path played) else ());
-        try traverse new_bag (ustep path played) with Not_found -> ()
+      try
+        let new_bag, played = Bag.play (letter path.node) bag in
+        if Bag.is_empty new_bag then add_word (uword_of path played)
+        else
+          (if all then add_word (uword_of path played) else ());
+          traverse new_bag (ustep path played)
+      with Not_found -> ()
     in
       traverse bag path;
   in collecting traversal
