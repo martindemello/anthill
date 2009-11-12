@@ -9,9 +9,10 @@ SOURCES = \
 					ledit/ledit.mli ledit/ledit.ml \
 					varix.ml
 
-LIBS = unix bigarray str pcre run_mikmatch_pcre
-PACKS = unix bigarray str mikmatch_pcre pcre
-INCDIRS = /usr/lib/ocaml/camlp5 /usr/lib/ocaml/pcre-ocaml /usr/lib/ocaml/site-lib/mikmatch_pcre # /opt/godi/lib/ocaml/pkg-lib/pcre /opt/godi/lib/ocaml/pkg-lib/micmatch_pcre
+GODI = /home/martin/opt/godi/lib/ocaml
+#LIBS = unix bigarray str pcre run_mikmatch_pcre
+PACKS = unix bigarray str mikmatch_pcre pcre batteries 
+INCDIRS = $(GODI)/pkg-lib/batteries $(GODI)/std-lib/camlp5 $(GODI)/pkg-lib/pcre $(GODI)/pkg-lib/mikmatch_pcre
 CREATE_LIB = yes
 PRE_TARGETS = ledit/pa_local.cmo ledit/pa_def.cmo
 USE_CAMLP4 = yes
