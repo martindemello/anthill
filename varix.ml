@@ -41,7 +41,7 @@ let list_of_elem e =
   | _ -> failwith "not a wordlist"
 
 let set_of_elem e = 
-  Sset.of_list (list_of_elem e)
+  Sset.of_list (List.map String.lowercase (list_of_elem e))
 
 let top3 stack = 
   let a = Stack.pop stack in
