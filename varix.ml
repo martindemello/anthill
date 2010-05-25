@@ -49,7 +49,7 @@ let set_of_elem e =
  * main() and friends
  * ***********************************************************************)
 
-let anag, patt, rack = 
+let anag, patt, rack =
   { desc = "anagram > "; proc = anagrams_of_string; sort = sort_by caps_in; },
   { desc = "pattern > "; proc = patterns_of_string; sort = sort_by caps_in; },
   { desc = "build > "; proc = build_of_string; sort = sort_by String.length; }
@@ -63,7 +63,7 @@ let readline prompt =
   in
   loop (Ledit.input_char stdin);;
 
-let print_instructions = 
+let print_instructions () =
   print_endline "Anagram: a letters";
   print_endline "Pattern: p letters";
   print_endline "Build: b letters";
@@ -73,17 +73,17 @@ let print_instructions =
   print_endline "------------------------------------------------";
   flush stdout
 
-let unary_of op = 
+let unary_of op =
   match (String.lowercase op) with
   | "a" -> anag
   | "p" -> patt
   | "b" -> rack
   | _ -> failwith "no such operation!"
 
-let binary_of op = 
+let binary_of op =
   match (String.lowercase op) with
-  | "&" | "and"  -> Union
-  | "|" | "or"   -> Inter
+  | "&" | "and"  -> Inter
+  | "|" | "or"   -> Union
   | "-" | "diff" -> Diff
   | _ -> failwith "no such operation!"
 
@@ -95,24 +95,29 @@ let binary o l r =
   let s = match binary_of o with
   | Union -> StringSet.union l r
   | Inter -> StringSet.inter l r
-  | Diff  -> StringSet.diff  l r 
+  | Diff  -> StringSet.diff  l r
   in
   to_list s
 
 let lookup v = []
 
-let rec eval = function 
-  | Node(N_Root, _, [x])                   -> eval x 
+let rec eval = function
+  | Node(N_Root, _, [x])                   -> eval x
   | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive o r
   | Node(N_var, [A_name, v], _)            -> lookup v
   | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval l) (eval r)
-  | _ -> invalid_arg "eval" 
-;; 
- 
+  | _ -> invalid_arg "Input not recognized"
+;;
+
 let display_result ws =
-  List.iter (printf "%s\n") ws
+  List.iter (printf "%s\n") ws;
+  flush stdout
 
 let show_exc x = Printf.printf "Exception: %s\n%!" (Printexc.to_string x)
+
+let bad_command () =
+  printf "Bad command\n";
+  flush stdout
 
 let parse str =
   try
@@ -120,12 +125,14 @@ let parse str =
     let x = eval t in
     display_result x
   with
-  | x -> show_exc x
+  | Invalid_argument a -> bad_command ()
+  | Aurochs.Parse_error b -> bad_command ()
+  | x  -> show_exc x
 
-let _ = 
-  print_instructions;
+let _ =
+  print_instructions ();
   let cur = ref anag in
-  try 
+  try
     while true do
       let str = readline !cur.desc in
       parse str;

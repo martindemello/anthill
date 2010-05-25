@@ -18,6 +18,6 @@ expr ::= <expr> set space binary space set </expr> ;
 
 line ::= (prim | expr) ;
 
-file ::= (line eol)+ line? ;
+file ::= (line eol)* line? ;
 
 start ::= file EOF ;
