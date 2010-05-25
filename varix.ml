@@ -8,6 +8,9 @@
 
 open Printf
 open Debug
+open Aurochs_pack
+open Peg
+open Vx
 include Dawg
 include Search
 include Sset
@@ -25,73 +28,23 @@ let build_of_string str = all_words (Bag.of_string str) start;;
 (*************************************************************************
  * Cstack 
  * ***********************************************************************)
-type eval = { 
+type operator = { 
   desc: string; 
   proc: string -> string list;
   sort: string list -> string list;
 };;
 
-type op = Union | Inter | Diff ;;
+type uop = Anagram | Build | Pattern ;;
+type bop = Union | Inter | Diff ;;
+type rack = Rack of string;;
 
-type elem = Nop | Primitive of eval * string | Op of op | Words of string list 
+type elem = Nop | Primitive of uop * rack |  Words of string list 
 
-let list_of_elem e =
-  match e with
-  | Words li -> li
-  | _ -> failwith "not a wordlist"
-
+let list_of_elem e = e
+  
 let set_of_elem e = 
   Sset.of_list (List.map String.lowercase (list_of_elem e))
 
-let top3 stack = 
-  let a = Stack.pop stack in
-  let b = Stack.pop stack in
-  let c = Stack.pop stack in
-  (a, b, c)
-
-let set_op sop stack = 
-  let _, l1, l2 = top3 stack in
-  let s1, s2 = set_of_elem l1, set_of_elem l2 in
-  let s = sop s1 s2 in
-  let words = Words (to_list s) in
-  Stack.push words stack; stack
-
-let union stack =
-  set_op StringSet.union stack
-
-let inter stack =
-  set_op StringSet.inter stack
-
-let diff stack =
-  set_op StringSet.diff stack
-
-let run stack =
-  match Stack.pop stack with
-  | Primitive (e, i) ->
-      let result = (e.sort (e.proc i)) in
-      Stack.push (Words result) stack; stack
-  | _ -> failwith "called run with nonprimitive"
-
-let display_top stack =
-  let top = Stack.top stack in 
-  match top with
-  | Words ws        -> List.iter (printf "%s\n") ws
-  | Primitive (e,i) -> printf "(%s %s)\n" e.desc i
-  | Op Union        -> printf "-or-\n"
-  | Op Inter        -> printf "-and-\n"
-  | Op Diff         -> printf "-diff-\n"
-  | Nop             -> printf "[]\n"
-
-let process stack = 
-  let top = Stack.top stack in 
-  match top with
-  | Words _         -> stack
-  | Primitive (_,_) -> run stack
-  | Op Union        -> union stack
-  | Op Inter        -> inter stack
-  | Op Diff         -> diff  stack
-  | Nop             -> Stack.pop stack; stack
-      
 (*************************************************************************
  * main() and friends
  * ***********************************************************************)
@@ -120,46 +73,63 @@ let print_instructions =
   print_endline "------------------------------------------------";
   flush stdout
 
-let eval_of op = 
+let unary_of op = 
   match (String.lowercase op) with
   | "a" -> anag
   | "p" -> patt
   | "b" -> rack
   | _ -> failwith "no such operation!"
 
-(* ---------------------------------------------------
- * Regular expressions
- * --------------------------------------------------- *)
+let binary_of op = 
+  match (String.lowercase op) with
+  | "&" | "and"  -> Union
+  | "|" | "or"   -> Inter
+  | "-" | "diff" -> Diff
+  | _ -> failwith "no such operation!"
 
-RE tile = alpha | ['.' '*']
-RE rack = tile*
-RE unary = ['A' 'a' 'P' 'p' 'B' 'b']
+let primitive x y =
+  let op = unary_of x in op.proc y
+
+let binary o l r =
+  let l, r = set_of_elem l, set_of_elem r in
+  let s = match binary_of o with
+  | Union -> StringSet.union l r
+  | Inter -> StringSet.inter l r
+  | Diff  -> StringSet.diff  l r 
+  in
+  to_list s
+
+let lookup v = []
+
+let rec eval = function 
+  | Node(N_Root, _, [x])                   -> eval x 
+  | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive o r
+  | Node(N_var, [A_name, v], _)            -> lookup v
+  | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval l) (eval r)
+  | _ -> invalid_arg "eval" 
+;; 
+ 
+let display_result ws =
+  List.iter (printf "%s\n") ws
+
+let show_exc x = Printf.printf "Exception: %s\n%!" (Printexc.to_string x)
+
+let parse str =
+  try
+    let t = Aurochs.read ~grammar:(`Program Vx.program) ~text:(`String str) in
+    let x = eval t in
+    display_result x
+  with
+  | x -> show_exc x
 
 let _ = 
   print_instructions;
   let cur = ref anag in
-  let stack = Stack.create () in
   try 
     while true do
-      try
-        let str = readline !cur.desc in
-        let thunk = match str with
-        | RE (unary as op) space (rack as inp) -> 
-            cur := eval_of op; Primitive(!cur, inp)
-        | RE bol "and" eol  -> Op Inter
-        | RE bol "or" eol   -> Op Union
-        | RE bol "diff" eol -> Op Diff
-        | RE (rack as inp)  -> Primitive(!cur, inp)
-        | _ -> Nop
-        in
-        Stack.push thunk stack;
-        process stack;
-        display_top stack;
-        flush stdout;
-        with Stack.Empty -> printf("Nothing to do!\n");
-
-      printf "%d\n" (Stack.length stack);
-      flush stdout;
-    done
-      with End_of_file -> print_newline ();
+      let str = readline !cur.desc in
+      parse str;
+    done;
+    flush stdout;
+  with End_of_file -> print_newline ();
 

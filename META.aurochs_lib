@@ -1,0 +1,5 @@
+name = "aurochs_lib"
+version = "1.0.94"
+description = "Aurochs PEG parser library."
+archive(byte) = "aurochs_lib.cma"
+archive(native) = "aurochs_lib.cmxa"
