@@ -93,8 +93,10 @@ let binary_of op =
   | "-" | "diff" -> Diff
   | _ -> failwith "no such operation!"
 
-let primitive x y =
-  let op = unary_of x in op.proc y
+let primitive env x y =
+  let op = unary_of x in
+  env.operator <- op;
+  op.proc y
 
 let binary o l r =
   let l, r = set_of_elem l, set_of_elem r in
@@ -105,13 +107,14 @@ let binary o l r =
   in
   to_list s
 
-let lookup v = []
+let lookup env v = []
 
 let rec eval env t = match t with
   | Node(N_Root, _, [x])                   -> eval env x
-  | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive o r
-  | Node(N_var, [A_name, v], _)            -> lookup v
+  | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive env o r
+  | Node(N_var, [A_name, v], _)            -> lookup env v
   | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval env l) (eval env r)
+  | Node(N_intr, [A_rack, r], [])          -> env.operator.proc r
   | _ -> invalid_arg "Input not recognized"
 ;;
 
