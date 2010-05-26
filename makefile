@@ -14,12 +14,15 @@ GODI = /home/martin/opt/godi/lib/ocaml
 PACKS = unix bigarray str mikmatch_pcre pcre batteries aurochs_lib
 INCDIRS = $(GODI)/pkg-lib/batteries $(GODI)/std-lib/camlp5 $(GODI)/pkg-lib/pcre $(GODI)/pkg-lib/mikmatch_pcre
 CREATE_LIB = yes
-PRE_TARGETS = ledit/pa_local.cmo ledit/pa_def.cmo
+PRE_TARGETS = ledit/pa_local.cmo ledit/pa_def.cmo vx.ml vx.mli
 USE_CAMLP4 = yes
 PP = ./camlp4find $(PACKS)
 export PP
 
-default: native-code
+all: native-code
+
+vx.ml: vx.peg
+	aurochs -target ml vx.peg
 
 OCAMLMAKEFILE = OCamlMakefile
 include $(OCAMLMAKEFILE)
