@@ -25,14 +25,20 @@ let patterns_of_string str = pattern (explode str) start;;
 
 let build_of_string str = all_words (Bag.of_string str) start;;
 
+
 (*************************************************************************
- * Cstack 
+ * parser and evaluator
  * ***********************************************************************)
+
 type operator = { 
   desc: string; 
   proc: string -> string list;
   sort: string list -> string list;
 };;
+
+type env = {
+  mutable operator: operator;
+}
 
 type uop = Anagram | Build | Pattern ;;
 type bop = Union | Inter | Diff ;;
@@ -101,11 +107,11 @@ let binary o l r =
 
 let lookup v = []
 
-let rec eval = function
-  | Node(N_Root, _, [x])                   -> eval x
+let rec eval env t = match t with
+  | Node(N_Root, _, [x])                   -> eval env x
   | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive o r
   | Node(N_var, [A_name, v], _)            -> lookup v
-  | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval l) (eval r)
+  | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval env l) (eval env r)
   | _ -> invalid_arg "Input not recognized"
 ;;
 
@@ -119,10 +125,10 @@ let bad_command () =
   printf "Bad command\n";
   flush stdout
 
-let parse str =
+let parse env str =
   try
     let t = Aurochs.read ~grammar:(`Program Vx.program) ~text:(`String str) in
-    let x = eval t in
+    let x = eval env t in
     display_result x
   with
   | Invalid_argument a -> bad_command ()
@@ -131,11 +137,11 @@ let parse str =
 
 let _ =
   print_instructions ();
-  let cur = ref anag in
+  let env = {operator = anag} in
   try
     while true do
-      let str = readline !cur.desc in
-      parse str;
+      let str = readline env.operator.desc in
+      parse env str;
     done;
     flush stdout;
   with End_of_file -> print_newline ();
