@@ -16,7 +16,9 @@ set ::= var | '(' space? prim space? ')' | '(' space? expr space? ')';
 
 expr ::= <expr> set space binary space set </expr> ;
 
-line ::= (prim | expr) ;
+intr ::= <intr> rack </intr> ;
+
+line ::= intr | prim | expr ;
 
 file ::= (line eol)* line? ;
 
