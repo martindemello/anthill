@@ -1,0 +1,5 @@
+true: package(unix), package(bigarray), package(str), \
+      package(mikmatch_pcre), package(pcre), package(batteries), \
+      package(aurochs_lib)
+true: syntax(camlp4o)
+"ledit": -traverse
