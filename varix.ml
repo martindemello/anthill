@@ -61,13 +61,14 @@ let anag, patt, rack =
   { desc = "build > "; proc = build_of_string; sort = sort_by String.length; }
 
 let readline prompt =
-  Ledit.set_prompt prompt;
-  let buf = Buffer.create 256 in
-  let rec loop c = match c with
-  | "\n" -> Buffer.contents buf
-  | _    -> Buffer.add_string buf c; loop (Ledit.input_char stdin)
-  in
-  loop (Ledit.input_char stdin);;
+  assert false
+  (* Ledit.set_prompt prompt; *)
+  (* let buf = Buffer.create 256 in *)
+  (* let rec loop c = match c with *)
+  (* | "\n" -> Buffer.contents buf *)
+  (* | _    -> Buffer.add_string buf c; loop (Ledit.input_char stdin) *)
+  (* in *)
+  (* loop (Ledit.input_char stdin);; *)
 
 let print_instructions () =
   print_endline "Anagram: a letters";
