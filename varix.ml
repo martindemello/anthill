@@ -1,6 +1,6 @@
 (*pp $PP *)
 (*************************************************************************
- * Requires: 
+ * Requires:
  *   unix.cma
  *   bigarray.cma
  *   str.cma
@@ -30,8 +30,8 @@ let build_of_string str = all_words (Bag.of_string str) start;;
  * parser and evaluator
  * ***********************************************************************)
 
-type operator = { 
-  desc: string; 
+type operator = {
+  desc: string;
   proc: string -> string list;
   sort: string list -> string list;
 };;
@@ -44,11 +44,11 @@ type uop = Anagram | Build | Pattern ;;
 type bop = Union | Inter | Diff ;;
 type rack = Rack of string;;
 
-type elem = Nop | Primitive of uop * rack |  Words of string list 
+type elem = Nop | Primitive of uop * rack |  Words of string list
 
 let list_of_elem e = e
-  
-let set_of_elem e = 
+
+let set_of_elem e =
   Sset.of_list (List.map String.lowercase (list_of_elem e))
 
 (*************************************************************************
@@ -61,14 +61,13 @@ let anag, patt, rack =
   { desc = "build > "; proc = build_of_string; sort = sort_by String.length; }
 
 let readline prompt =
-  assert false
-  (* Ledit.set_prompt prompt; *)
-  (* let buf = Buffer.create 256 in *)
-  (* let rec loop c = match c with *)
-  (* | "\n" -> Buffer.contents buf *)
-  (* | _    -> Buffer.add_string buf c; loop (Ledit.input_char stdin) *)
-  (* in *)
-  (* loop (Ledit.input_char stdin);; *)
+  Ledit.set_prompt prompt;
+  let buf = Buffer.create 256 in
+  let rec loop c = match c with
+  | "\n" -> Buffer.contents buf
+  | _    -> Buffer.add_string buf c; loop (Ledit.input_char stdin)
+  in
+  loop (Ledit.input_char stdin);;
 
 let print_instructions () =
   print_endline "Anagram: a letters";
