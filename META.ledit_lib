@@ -1,0 +1,6 @@
+name="ledit_lib"
+version="2.03"
+description="Ledit library"
+requires="unix,camlp5.gramlib"
+archive(byte)="ledit.cma"
+archive(native)="ledit.cmxa"
