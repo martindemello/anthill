@@ -5,11 +5,13 @@ include Dawg
  * debugging utilities
  * ***********************************************************************)
 
-let display_path path = printf "path: {%s %d:%c %s %b} " path.prefix path.node
-(letter path.node) (word path) (is_word path);;
+let display_path dawg path =
+  printf "path: {%s %d:%c %s %b} "
+    path.prefix path.node (Dawg.letter dawg path.node) (Dawg.word dawg path)
+    (Dawg.is_word dawg path);;
 
 let display_list pref lst =
-  let rec d l = 
+  let rec d l =
     match l with
     [] -> printf "_";
     | c :: cs -> begin printf "%c::" c; d cs; end
@@ -20,7 +22,7 @@ let display_list pref lst =
 ;;
 
 let display_string_list pref lst =
-  let rec d l = 
+  let rec d l =
     match l with
     [] -> printf "_";
     | c :: cs -> begin printf "%s::" c; d cs; end
@@ -30,8 +32,8 @@ let display_string_list pref lst =
   printf "]"
 ;;
 
-let debug pref trail path = 
+let debug dawg pref trail path =
   display_list pref trail;
-  display_path path;
+  display_path dawg path;
   printf("\n")
 ;;

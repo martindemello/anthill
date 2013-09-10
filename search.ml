@@ -1,19 +1,17 @@
-open Dawg
-
 (*************************************************************************
  * search -> dawg -> wordlist
  * ***********************************************************************)
 
 (* check if a word is good *)
-let check str =
+let check dawg str =
   let len = (String.length str - 1) in
   let rec walk n i =
     try
-      let p = find str.[i] n in
-      if i = len then (wordp p) else (walk (ptr p) (i+1))
+      let p = Dawg.find dawg str.[i] n in
+      if i = len then (Dawg.wordp dawg p) else (walk (Dawg.ptr dawg p) (i+1))
     with Not_found -> false
   in
-  walk start_node 0;;
+  walk Dawg.start_node 0;;
 
 let collecting traversal =
   let retval = ref [] in
@@ -22,19 +20,19 @@ let collecting traversal =
   Sset.to_list (Sset.of_list !retval)
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
-let pattern trail path =
+let pattern dawg trail path =
   let traversal add_word =
     let rec traverse trail path =
       match trail with
       |[]        -> ();
-      |'.' :: cs -> foreach_sib (follow cs) path
-      |'*' :: cs -> ( traverse cs path; foreach_sib (follow trail) path; )
-      |c   :: cs -> try follow cs (sib c path) with Not_found -> ()
+      |'.' :: cs -> Dawg.foreach_sib dawg (follow cs) path
+      |'*' :: cs -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
+      |c   :: cs -> try follow cs (Dawg.sib dawg c path) with Not_found -> ()
     and follow tr pth =
-      let try_step tr pth = try traverse tr (step pth) with Not_found -> () in
+      let try_step tr pth = try traverse tr (Dawg.step dawg pth) with Not_found -> () in
       match tr with
-      |[]    -> add_word (word_of pth);
-      |['*'] -> ( add_word (word_of pth); try_step tr pth; )
+      |[]    -> add_word (Dawg.word_of dawg pth);
+      |['*'] -> ( add_word (Dawg.word_of dawg pth); try_step tr pth; )
       |_     -> try_step tr pth
     in
       traverse trail path;
@@ -43,23 +41,23 @@ let pattern trail path =
 
 (* Build all possible words from a bag and a dawg *
  * if all = false, return only words using the entire bag *)
-let build bag path all =
+let build dawg bag path all =
   let traversal add_word =
     let rec traverse bag path =
-      foreach_sib (follow bag) path
+      Dawg.foreach_sib dawg (follow bag) path
     and follow bag path =
       try
-        let new_bag, played = Bag.play (letter path.node) bag in
-        if Bag.is_empty new_bag then add_word (uword_of path played)
+        let new_bag, played = Bag.play (Dawg.letter dawg path.Dawg.node) bag in
+        if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
         else
-          (if all then add_word (uword_of path played) else ());
-          traverse new_bag (ustep path played)
+          (if all then add_word (Dawg.uword_of dawg path played) else ());
+          traverse new_bag (Dawg.ustep dawg path played)
       with Not_found -> ()
     in
       traverse bag path;
   in collecting traversal
 ;;
 
-let anagrams bag path = build bag path false;;
+let anagrams dawg bag path = build dawg bag path false;;
 
-let all_words bag path = build bag path true;;
+let all_words dawg bag path = build dawg bag path true;;

@@ -11,19 +11,17 @@ open Debug
 open Aurochs_pack
 open Peg
 open Vx
-include Dawg
-include Search
 include Sset
 
 (*************************************************************************
  * high level string -> [string] interface
  * ***********************************************************************)
 
-let anagrams_of_string str = anagrams (Bag.of_string str) start;;
+let anagrams_of_string dawg str = Search.anagrams dawg (Bag.of_string str) start;;
 
-let patterns_of_string str = pattern (explode str) start;;
+let patterns_of_string dawg str = Search.pattern dawg (explode str) start;;
 
-let build_of_string str = all_words (Bag.of_string str) start;;
+let build_of_string dawg str = Search.all_words dawg (Bag.of_string str) start;;
 
 
 (*************************************************************************
@@ -32,12 +30,13 @@ let build_of_string str = all_words (Bag.of_string str) start;;
 
 type operator = {
   desc: string;
-  proc: string -> string list;
+  proc: dawg -> string -> string list;
   sort: string list -> string list;
 };;
 
 type env = {
   mutable operator: operator;
+  dawg: dawg;
 }
 
 type uop = Anagram | Build | Pattern ;;
@@ -96,7 +95,7 @@ let binary_of op =
 let primitive env x y =
   let op = unary_of x in
   env.operator <- op;
-  op.proc y
+  op.proc env.dawg y
 
 let binary o l r =
   let l, r = set_of_elem l, set_of_elem r in
@@ -114,7 +113,7 @@ let rec eval env t = match t with
   | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive env o r
   | Node(N_var, [A_name, v], _)            -> lookup env v
   | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval env l) (eval env r)
-  | Node(N_intr, [A_rack, r], [])          -> env.operator.proc r
+  | Node(N_intr, [A_rack, r], [])          -> env.operator.proc env.dawg r
   | _ -> invalid_arg "Input not recognized"
 ;;
 
@@ -139,8 +138,9 @@ let parse env str =
   | x  -> show_exc x
 
 let _ =
+  let dawg = Dawg.load "csw.dwg" in
   print_instructions ();
-  let env = {operator = anag} in
+  let env = {operator = anag; dawg = dawg} in
   try
     while true do
       let str = readline env.operator.desc in

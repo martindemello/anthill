@@ -26,8 +26,10 @@ open Bigarray
 open Printf
 include Utility
 
-let dawg =
-  let fd = Unix.openfile "csw.dwg" [ Unix.O_RDONLY ] 0 in
+type dawg = (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t;;
+
+let load fname =
+  let fd = Unix.openfile fname [ Unix.O_RDONLY ] 0 in
   Array1.map_file fd int32 c_layout false (-1);;
 
 (* bitfield accessors *)
@@ -42,21 +44,21 @@ let _lastp node = (Int32.logand node n_pos) <> Int32.zero;;
 let _ptr node = Int32.to_int (Int32.logand node ptr_mask);;
 
 (* access nodes via their dawg index *)
-let lastp ix = _lastp dawg.{ix};;
-let wordp ix = _wordp dawg.{ix};;
-let letter ix = _letter dawg.{ix};;
-let ptr ix = _ptr dawg.{ix};;
+let lastp dawg ix = _lastp dawg.{ix};;
+let wordp dawg ix = _wordp dawg.{ix};;
+let letter dawg ix = _letter dawg.{ix};;
+let ptr dawg ix = _ptr dawg.{ix};;
 
 (**********************************************************
  * Node functions
  **********************************************************)
 
 (* scan the siblings of a node for a character *)
-let rec find chr node =
-  let c = letter node in
+let rec find dawg chr node =
+  let c = letter dawg node in
   if (c == chr) then node
-  else if ((c > chr) or (lastp node)) then raise Not_found
-  else (find chr (node + 1));;
+  else if ((c > chr) or (lastp dawg node)) then raise Not_found
+  else (find dawg chr (node + 1));;
 
 (**********************************************************
  * Path functions
@@ -68,38 +70,36 @@ type path = { prefix: string; node: int };;
 
 let start = { prefix = ""; node = start_node };;
 
-let word p = addchar p.prefix (letter p.node);;
+let word dawg p = addchar p.prefix (letter dawg p.node);;
 
 (* take a step forward *)
-let step p =
-  match ptr p.node with
+let step dawg p = match ptr dawg p.node with
   0 -> raise Not_found
-  |_ -> { prefix = word p; node = ptr p.node };;
+| _ -> { prefix = word dawg p; node = ptr dawg p.node };;
 
 (* use uppercase for wildcard matches *)
-let uword p u = match u with
-| '.' -> addchar p.prefix (Char.uppercase (letter p.node))
-| _   -> addchar p.prefix (letter p.node);;
+let uword dawg p u = match u with
+| '.' -> addchar p.prefix (Char.uppercase (letter dawg p.node))
+| _   -> addchar p.prefix (letter dawg p.node);;
 
-let ustep p u =
-  match ptr p.node with
+let ustep dawg p u = match ptr dawg p.node with
   0 -> raise Not_found
-  |_ -> { prefix = uword p u; node = ptr p.node };;
+| _ -> { prefix = uword dawg p u; node = ptr dawg p.node };;
 
-let next_sib p =
-  if lastp p.node then raise Not_found
+let next_sib dawg p =
+  if lastp dawg p.node then raise Not_found
   else { p with node = p.node + 1 };;
 
-let sib c p = { p with node = find c p.node };;
+let sib dawg c p = { p with node = find dawg c p.node };;
 
-let rec foreach_sib f p =
+let rec foreach_sib dawg f p =
   f p;
-  if not (lastp p.node) then foreach_sib f (next_sib p);;
+  if not (lastp dawg p.node) then foreach_sib dawg f (next_sib dawg p);;
 
-let is_word p = wordp p.node;;
+let is_word dawg p = wordp dawg p.node;;
 
-let word_of path =
-  if (is_word path) then Some(word path) else None;;
+let word_of dawg path =
+  if (is_word dawg path) then Some(word dawg path) else None;;
 
-let uword_of path u =
-  if (is_word path) then Some(uword path u) else None;;
+let uword_of dawg path u =
+  if (is_word dawg path) then Some(uword dawg path u) else None;;
