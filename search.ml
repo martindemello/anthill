@@ -2,16 +2,9 @@
  * search -> dawg -> wordlist
  * ***********************************************************************)
 
-(* check if a word is good *)
-let check dawg str =
-  let len = (String.length str - 1) in
-  let rec walk n i =
-    try
-      let p = Dawg.find dawg str.[i] n in
-      if i = len then (Dawg.wordp dawg p) else (walk (Dawg.ptr dawg p) (i+1))
-    with Not_found -> false
-  in
-  walk Dawg.start_node 0;;
+(*************************************************************************
+ * search functions starting from an arbitrary node + prefix
+ * ***********************************************************************)
 
 let collecting traversal =
   let retval = ref [] in
@@ -20,7 +13,7 @@ let collecting traversal =
   Sset.to_list (Sset.of_list !retval)
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
-let pattern dawg trail path =
+let _pattern dawg trail path =
   let traversal add_word =
     let rec traverse trail path =
       match trail with
@@ -41,7 +34,7 @@ let pattern dawg trail path =
 
 (* Build all possible words from a bag and a dawg *
  * if all = false, return only words using the entire bag *)
-let build dawg bag path all =
+let _build dawg bag path all =
   let traversal add_word =
     let rec traverse bag path =
       Dawg.foreach_sib dawg (follow bag) path
@@ -58,6 +51,16 @@ let build dawg bag path all =
   in collecting traversal
 ;;
 
-let anagrams dawg bag path = build dawg bag path false;;
+let _anagrams dawg bag path = _build dawg bag path false;;
 
-let all_words dawg bag path = build dawg bag path true;;
+let _all_words dawg bag path = _build dawg bag path true;;
+
+(*************************************************************************
+ * search functions starting from the root of the dawg
+ * ***********************************************************************)
+
+let pattern dawg trail = _pattern dawg trail Dawg.start
+
+let anagrams dawg bag = _anagrams dawg bag Dawg.start
+
+let all_words dawg  bag = _all_words dawg bag Dawg.start
