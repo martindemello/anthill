@@ -151,7 +151,11 @@ let _ =
     with End_of_file -> print_newline ();
   end else begin
     let trail = [(Letter 'h'); Group (Group.of_string "ace"); (Letter 'm')] in
-    display_result (Search.pattern env.dawg trail)
+    display_result (Search.pattern env.dawg trail);
+
+    let bag = Bag.of_string "pink." in
+    display_result (Search.anagrams env.dawg bag)
+
   end
 
 

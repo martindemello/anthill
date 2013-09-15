@@ -54,7 +54,9 @@ let _build dawg bag path all =
       Dawg.foreach_sib dawg (follow bag) path
     and follow bag path =
       try
-        let new_bag, played = Bag.play (Dawg.letter dawg path.Dawg.node) bag in
+        let letter = Letter (Dawg.letter dawg path.Dawg.node) in
+        let new_bag, _played = Bag.play letter bag in
+        let played = char_of_node _played in
         if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
         else
           (if all then add_word (Dawg.uword_of dawg path played) else ());
