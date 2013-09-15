@@ -25,6 +25,7 @@
 open Bigarray
 open Printf
 include Utility
+include Types
 
 type dawg = (int32, Bigarray.int32_elt, Bigarray.c_layout) Bigarray.Array1.t;;
 
@@ -54,11 +55,15 @@ let ptr dawg ix = _ptr dawg.{ix};;
  **********************************************************)
 
 (* scan the siblings of a node for a character *)
-let rec find dawg chr node =
+let rec find dawg pt node =
   let c = letter dawg node in
-  if (c == chr) then node
-  else if ((c > chr) or (lastp dawg node)) then raise Not_found
-  else (find dawg chr (node + 1));;
+  match pt with
+  | Letter chr -> begin
+      if (c == chr) then node
+      else if ((c > chr) or (lastp dawg node)) then raise Not_found
+      else (find dawg pt (node + 1))
+    end
+  | _ -> raise Not_found
 
 (**********************************************************
  * Path functions

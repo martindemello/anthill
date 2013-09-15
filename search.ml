@@ -1,10 +1,9 @@
 open Utility
+include Types
 
 (*************************************************************************
  * search -> dawg -> wordlist
  * ***********************************************************************)
-
-type node = Letter of char | Dot | Star
 
 let trail_of_string str =
   let node_of_char chr = match chr with
@@ -31,7 +30,7 @@ let _pattern dawg trail path =
       |[] -> ();
       |Dot :: cs -> Dawg.foreach_sib dawg (follow cs) path
       |Star :: cs -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
-      |Letter c :: cs -> try follow cs (Dawg.sib dawg c path) with Not_found -> ()
+      |Letter c :: cs -> try follow cs (Dawg.sib dawg (Letter c) path) with Not_found -> ()
     and follow tr pth =
       let try_step tr pth = try traverse tr (Dawg.step dawg pth) with Not_found -> () in
       match tr with
