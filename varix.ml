@@ -19,7 +19,7 @@ include Sset
 
 let anagrams_of_string dawg str = Search.anagrams dawg (Bag.of_string str);;
 
-let patterns_of_string dawg str = Search.pattern dawg (explode str);;
+let patterns_of_string dawg str = Search.pattern dawg (Search.trail_of_string str);;
 
 let build_of_string dawg str = Search.all_words dawg (Bag.of_string str);;
 

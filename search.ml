@@ -1,6 +1,17 @@
+open Utility
+
 (*************************************************************************
  * search -> dawg -> wordlist
  * ***********************************************************************)
+
+type node = Letter of char | Dot | Star
+
+let trail_of_string str =
+  let node_of_char chr = match chr with
+  | '.' -> Dot
+  | '*' -> Star
+  | c   -> Letter c
+  in List.map node_of_char (explode str);;
 
 (*************************************************************************
  * search functions starting from an arbitrary node + prefix
@@ -17,16 +28,16 @@ let _pattern dawg trail path =
   let traversal add_word =
     let rec traverse trail path =
       match trail with
-      |[]        -> ();
-      |'.' :: cs -> Dawg.foreach_sib dawg (follow cs) path
-      |'*' :: cs -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
-      |c   :: cs -> try follow cs (Dawg.sib dawg c path) with Not_found -> ()
+      |[] -> ();
+      |Dot :: cs -> Dawg.foreach_sib dawg (follow cs) path
+      |Star :: cs -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
+      |Letter c :: cs -> try follow cs (Dawg.sib dawg c path) with Not_found -> ()
     and follow tr pth =
       let try_step tr pth = try traverse tr (Dawg.step dawg pth) with Not_found -> () in
       match tr with
-      |[]    -> add_word (Dawg.word_of dawg pth);
-      |['*'] -> ( add_word (Dawg.word_of dawg pth); try_step tr pth; )
-      |_     -> try_step tr pth
+      |[] -> add_word (Dawg.word_of dawg pth);
+      |[Star] -> ( add_word (Dawg.word_of dawg pth); try_step tr pth; )
+      |_  -> try_step tr pth
     in
       traverse trail path;
   in collecting traversal
