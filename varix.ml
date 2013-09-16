@@ -141,11 +141,16 @@ let _ =
   let dawg = Dawg.load "csw.dwg" in
   print_instructions ();
   let env = {operator = anag; dawg = dawg} in
-  try
-    while true do
-      let str = readline env.operator.desc in
-      parse env str;
-    done;
-    flush stdout;
-  with End_of_file -> print_newline ();
+  if (Array.length Sys.argv == 1) then begin
+    try
+      while true do
+        let str = readline env.operator.desc in
+        parse env str;
+      done;
+      flush stdout;
+    with End_of_file -> print_newline ();
+  end else begin
+    parse env "retinas"
+  end
+
 
