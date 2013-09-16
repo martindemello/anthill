@@ -1,1 +1,7 @@
-type node = Letter of char | Dot | Star
+type group = Group.CharSet.t;;
+
+type bag = int Bag.MultiSet.t
+
+type node = Letter of char | Group of group | Dot | Star
+
+

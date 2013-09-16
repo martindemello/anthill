@@ -14,6 +14,12 @@ let remove letter bag =
   if n = 1 then MultiSet.remove letter bag
   else MultiSet.add letter (pred n) bag;;
 
+let contains letter bag =
+  try
+    let n = MultiSet.find letter bag in
+    true
+  with Not_found -> false;;
+
 let remove_blank bag =
   try remove '.' bag
   with Not_found -> let _ = MultiSet.find '*' bag in bag;;

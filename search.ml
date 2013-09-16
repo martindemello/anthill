@@ -27,16 +27,20 @@ let _pattern dawg trail path =
   let traversal add_word =
     let rec traverse trail path =
       match trail with
-      |[] -> ();
-      |Dot :: cs -> Dawg.foreach_sib dawg (follow cs) path
-      |Star :: cs -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
-      |Letter c :: cs -> try follow cs (Dawg.sib dawg (Letter c) path) with Not_found -> ()
+      | [] -> ();
+      | c :: cs -> begin
+        match c with
+        | Dot -> Dawg.foreach_sib dawg (follow cs) path
+        | Star -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
+        | Letter _ -> ( try follow cs (Dawg.sib dawg c path) with Not_found -> () )
+        | Group _ -> Dawg.foreach_sib_bag dawg c (follow cs) path
+        end
     and follow tr pth =
       let try_step tr pth = try traverse tr (Dawg.step dawg pth) with Not_found -> () in
       match tr with
-      |[] -> add_word (Dawg.word_of dawg pth);
-      |[Star] -> ( add_word (Dawg.word_of dawg pth); try_step tr pth; )
-      |_  -> try_step tr pth
+      | [] -> add_word (Dawg.word_of dawg pth);
+      | [Star] -> ( add_word (Dawg.word_of dawg pth); try_step tr pth; )
+      | _  -> try_step tr pth
     in
       traverse trail path;
   in collecting traversal

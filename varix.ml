@@ -139,9 +139,9 @@ let parse env str =
 
 let _ =
   let dawg = Dawg.load "csw.dwg" in
-  print_instructions ();
   let env = {operator = anag; dawg = dawg} in
   if (Array.length Sys.argv == 1) then begin
+    print_instructions ();
     try
       while true do
         let str = readline env.operator.desc in
@@ -150,7 +150,8 @@ let _ =
       flush stdout;
     with End_of_file -> print_newline ();
   end else begin
-    parse env "retinas"
+    let trail = [(Letter 'h'); Group (Group.of_string "ace"); (Letter 'm')] in
+    display_result (Search.pattern env.dawg trail)
   end
 
 

@@ -63,6 +63,11 @@ let rec find dawg pt node =
       else if ((c > chr) or (lastp dawg node)) then raise Not_found
       else (find dawg pt (node + 1))
     end
+  | Group chrs -> begin
+      if (Group.contains chrs c) then node
+      else if (lastp dawg node) then raise Not_found
+      else (find dawg pt (node + 1))
+    end
   | _ -> raise Not_found
 
 (**********************************************************
@@ -100,6 +105,16 @@ let sib dawg c p = { p with node = find dawg c p.node };;
 let rec foreach_sib dawg f p =
   f p;
   if not (lastp dawg p.node) then foreach_sib dawg f (next_sib dawg p);;
+
+let next_sib_bag dawg bag p =
+  if lastp dawg p.node then raise Not_found
+  else { p with node = find dawg bag (p.node + 1) };;
+
+let rec foreach_sib_bag dawg bag f p =
+  let (Group g) = bag in
+  if (Group.contains g (letter dawg p.node)) then f p;
+  if not (lastp dawg p.node) then
+    foreach_sib_bag dawg bag f (next_sib_bag dawg bag p);;
 
 let is_word dawg p = wordp dawg p.node;;
 

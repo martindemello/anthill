@@ -1,13 +1,15 @@
 letter ::= [a-z] ;
-vchar ::= [A-Za-z0-9];
 tile ::= letter | '.' | '*';
 rack ::= rack:(tile tile+) ;
 unary ::= uop:('a' | 'b' | 'p') ;
 binary ::= bop:("and" | "or" | "diff" | "&" | "|" | "-") ;
-var ::= <var>name:([A-Z] vchar*)</var> ;
 space ::= [ \t\r]+ ;
 eql ::= "=" ;
 eol ::= "\n"+ ;
+
+(* variables *)
+vchar ::= [A-Za-z0-9];
+var ::= <var>name:([A-Z] vchar*)</var> ;
 
 (* primitive operation *)
 prim ::= <prim>unary space rack</prim> ;
