@@ -46,9 +46,10 @@ let bad_command () =
 
 let run env str =
   try
-    let t = Eval.parse str in
-    let x = Eval.eval env t in
-    display_result x
+    let open Eval in
+    let t = parse str in
+    let x = eval env t in
+    display_result (env.operator.sort x)
   with
   | Invalid_argument a -> bad_command ()
   | Aurochs.Parse_error b -> bad_command ()
