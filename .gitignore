@@ -4,4 +4,6 @@
 _build/*
 *.o
 *.cmx
+*.mlgi
 varix
+varix.native
