@@ -26,9 +26,9 @@ let play letter bag =
   try (remove letter bag, letter)
   with Not_found -> (remove_blank bag, Dot);;
 
-let of_string str =
+let of_rack rack =
   let bag = ref MultiSet.empty in
-  String.iter (fun i -> bag := add (node_of_char i) !bag) str;
+  List.iter (fun i -> bag := add i !bag) rack;
   !bag;;
 
 let empty = MultiSet.empty;;

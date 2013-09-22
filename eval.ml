@@ -9,11 +9,11 @@ open Vx
  * high level string -> [string] interface
  * ***********************************************************************)
 
-let anagrams_of_string dawg str = Search.anagrams dawg (Bag.of_string str);;
+let anagrams_of_rack dawg rack = Search.anagrams dawg (Bag.of_rack rack);;
 
-let patterns_of_string dawg str = Search.pattern dawg (Search.trail_of_string str);;
+let patterns_of_rack dawg rack = Search.pattern dawg rack;;
 
-let build_of_string dawg str = Search.all_words dawg (Bag.of_string str);;
+let build_of_rack dawg rack = Search.all_words dawg (Bag.of_rack rack);;
 
 
 (*************************************************************************
@@ -77,9 +77,9 @@ let binary_of op =
 
 let unary env o r =
   let p = match o with
-  | Anagram -> anagrams_of_string
-  | Pattern -> patterns_of_string
-  | Build -> build_of_string
+  | Anagram -> anagrams_of_rack
+  | Pattern -> patterns_of_rack
+  | Build -> build_of_rack
   in
   p env.dawg r
 
@@ -100,14 +100,26 @@ let binary o l r =
   in
   to_list s
 
+let rack r =
+  let Node(N_rack, _, tiles) = r in
+  let node_of_tile tile =
+    let Node(N_tile, t, _) = tile in
+    match t with
+    | [A_dot, _] -> Dot
+    | [A_star, _] -> Star
+    | [A_letter, c] -> Letter c.[0]
+    | [A_group, g] ->  Group (Group.of_string g)
+    | _ -> invalid_arg "Input not recognized"
+  in List.map node_of_tile tiles
+
 let lookup env v = []
 
 let rec eval env t = match t with
-  | Node(N_Root, _, [x])                   -> eval env x
-  | Node(N_prim, [A_uop, o; A_rack, r], _) -> primitive env o r
-  | Node(N_var, [A_name, v], _)            -> lookup env v
-  | Node(N_expr, [A_bop, o], [l; r])       -> binary o (eval env l) (eval env r)
-  | Node(N_intr, [A_rack, r], [])          -> current_primitive env r
+  | Node(N_Root, _, [x]) -> eval env x
+  | Node(N_prim, [A_uop, o], [r]) -> primitive env o (rack r)
+  | Node(N_var, [A_name, v], _) -> lookup env v
+  | Node(N_expr, [A_bop, o], [l; r]) -> binary o (eval env l) (eval env r)
+  | Node(N_intr, _, [r]) -> current_primitive env (rack r)
   | _ -> invalid_arg "Input not recognized"
 ;;
 

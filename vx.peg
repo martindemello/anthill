@@ -1,6 +1,9 @@
-letter ::= [a-z] ;
-tile ::= letter | '.' | '*';
-rack ::= rack:(tile tile+) ;
+letter ::= letter:([a-z]) ;
+group ::= '[' group:(letter+) ']';
+dot ::= dot:('.');
+star ::= star:('*');
+tile ::= <tile> letter | group | dot | star </tile>;
+rack ::= <rack> tile tile+ </rack> ;
 unary ::= uop:('a' | 'b' | 'p') ;
 binary ::= bop:("and" | "or" | "diff" | "&" | "|" | "-") ;
 space ::= [ \t\r]+ ;
