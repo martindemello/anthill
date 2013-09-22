@@ -1,4 +1,5 @@
 open Aurochs_pack
+open Env
 open Peg
 open Sset
 open Types
@@ -33,28 +34,10 @@ let list_of_elem e = e
 let set_of_elem e =
   Sset.of_list (List.map String.lowercase (list_of_elem e))
 
-(* environment *)
-
-type operator = {
-  proc: uop;
-  desc: string;
-  sort: string list -> string list;
-};;
-
-type env = {
-  mutable operator: operator;
-  dawg: Dawg.dawg;
-}
-
-let anag, patt, rack =
-  { desc = "anagram > "; proc = Anagram; sort = sort_by caps_in; },
-  { desc = "pattern > "; proc = Pattern; sort = sort_by caps_in; },
-  { desc = "build > "; proc = Build; sort = sort_by String.length; }
-
 let operator_of_uop o = match o with
-| Anagram -> anag
-| Pattern -> patt
-| Build -> rack
+| Anagram -> Env.anag
+| Pattern -> Env.patt
+| Build -> Env.rack
 
 
 (* operator parsing *)
@@ -89,7 +72,7 @@ let primitive env op r =
   unary env o r
 
 let current_primitive env r =
-  unary env env.operator.proc r
+  primitive env env.operator.op r
 
 let binary o l r =
   let l, r = set_of_elem l, set_of_elem r in
