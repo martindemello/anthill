@@ -33,7 +33,7 @@ let _pattern dawg trail path =
         | Dot -> Dawg.foreach_sib dawg (follow cs) path
         | Star -> ( traverse cs path; Dawg.foreach_sib dawg (follow trail) path; )
         | Letter _ -> ( try follow cs (Dawg.sib dawg c path) with Not_found -> () )
-        | Group _ -> Dawg.foreach_sib_bag dawg c (follow cs) path
+        | Group _ -> Dawg.foreach_sib_group dawg c (follow cs) path
         end
     and follow tr pth =
       let try_step tr pth = try traverse tr (Dawg.step dawg pth) with Not_found -> () in

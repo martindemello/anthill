@@ -106,15 +106,16 @@ let rec foreach_sib dawg f p =
   f p;
   if not (lastp dawg p.node) then foreach_sib dawg f (next_sib dawg p);;
 
-let next_sib_bag dawg bag p =
+let next_sib_group dawg group p =
   if lastp dawg p.node then raise Not_found
-  else { p with node = find dawg bag (p.node + 1) };;
+  else { p with node = find dawg group (p.node + 1) };;
 
-let rec foreach_sib_bag dawg bag f p =
-  let (Group g) = bag in
+let rec foreach_sib_group dawg group f p =
+  let (Group g) = group in
   if (Group.contains g (letter dawg p.node)) then f p;
-  if not (lastp dawg p.node) then
-    foreach_sib_bag dawg bag f (next_sib_bag dawg bag p);;
+  try
+    foreach_sib_group dawg group f (next_sib_group dawg group p)
+  with Not_found -> ();;
 
 let is_word dawg p = wordp dawg p.node;;
 
