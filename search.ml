@@ -48,28 +48,38 @@ let _pattern dawg trail path =
 
 (* Build all possible words from a bag and a dawg *
  * if all = false, return only words using the entire bag *)
-let _build dawg bag path all =
+let _build dawg bag path ~all ~multi =
   let traversal add_word =
     let rec traverse bag path =
       Dawg.foreach_sib dawg (follow bag) path
     and follow bag path =
-      try
-        let letter = Letter (Dawg.letter dawg path.Dawg.node) in
-        let new_bag, _played = Bag.play letter bag in
-        let played = char_of_node _played in
-        if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
-        else
-          (if all then add_word (Dawg.uword_of dawg path played) else ());
-          traverse new_bag (Dawg.ustep dawg path played)
-      with Not_found -> ()
+      let letter = Letter (Dawg.letter dawg path.Dawg.node) in
+      match Bag.play letter bag with
+      | _, None -> ()
+      | new_bag, Some(_played) ->
+          begin
+            let played = char_of_node _played in
+            if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
+            else begin
+              if all then
+                add_word (Dawg.uword_of dawg path played);
+              if (multi && Dawg.is_word dawg path) then
+                traverse new_bag (Dawg.new_word dawg path);
+              try
+                traverse new_bag (Dawg.ustep dawg path played)
+              with Not_found -> ()
+            end
+          end
     in
       traverse bag path;
   in collecting traversal
 ;;
 
-let _anagrams dawg bag path = _build dawg bag path false;;
+let _anagrams dawg bag path = _build dawg bag path ~all:false ~multi:false;;
 
-let _all_words dawg bag path = _build dawg bag path true;;
+let _all_words dawg bag path = _build dawg bag path ~all:true ~multi:false;;
+
+let _multi_words dawg bag path = _build dawg bag path ~all:false ~multi:true;;
 
 (*************************************************************************
  * search functions starting from the root of the dawg
@@ -79,4 +89,6 @@ let pattern dawg trail = _pattern dawg trail Dawg.start
 
 let anagrams dawg bag = _anagrams dawg bag Dawg.start
 
-let all_words dawg  bag = _all_words dawg bag Dawg.start
+let all_words dawg bag = _all_words dawg bag Dawg.start
+
+let multi_words dawg bag = _multi_words dawg bag Dawg.start

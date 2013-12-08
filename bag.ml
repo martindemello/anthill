@@ -23,8 +23,10 @@ let remove_blank bag =
 (* Remove a letter from a bag
  * if the letter doesn't exist, try removing a blank *)
 let play letter bag =
-  try (remove letter bag, letter)
-  with Not_found -> (remove_blank bag, Dot);;
+  try (remove letter bag, Some letter)
+  with Not_found ->
+    try (remove_blank bag, Some Dot)
+    with Not_found -> (bag, None)
 
 let of_rack rack =
   let bag = ref MultiSet.empty in

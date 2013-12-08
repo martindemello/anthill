@@ -6,7 +6,7 @@ include Dawg
  * ***********************************************************************)
 
 let display_path dawg path =
-  printf "path: {%s %d:%c %s %b} "
+  printf "\npath: {'%s' %d:%c %s %b} "
     path.prefix path.node (Dawg.letter dawg path.node) (Dawg.word dawg path)
     (Dawg.is_word dawg path);;
 

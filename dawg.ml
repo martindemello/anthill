@@ -84,8 +84,12 @@ let word dawg p = addchar p.prefix (letter dawg p.node);;
 
 (* take a step forward *)
 let step dawg p = match ptr dawg p.node with
-  0 -> raise Not_found
+| 0 -> raise Not_found
 | _ -> { prefix = word dawg p; node = ptr dawg p.node };;
+
+(* add a space to the prefix and jump back to the root *)
+let new_word dawg p =
+  { prefix = addchar (word dawg p) ' '; node = start_node };;
 
 (* use uppercase for wildcard matches *)
 let uword dawg p u = match u with
@@ -93,7 +97,7 @@ let uword dawg p u = match u with
 | _   -> addchar p.prefix (letter dawg p.node);;
 
 let ustep dawg p u = match ptr dawg p.node with
-  0 -> raise Not_found
+| 0 -> raise Not_found
 | _ -> { prefix = uword dawg p u; node = ptr dawg p.node };;
 
 let next_sib dawg p =
