@@ -3,7 +3,7 @@
 
 open Types
 
-module MultiSet = Map.Make(struct type t = char let compare = compare end)
+module MultiSet = Map.Make(struct type t = char let compare = Char.compare end)
 
 type bag = {
   letters : int MultiSet.t;
