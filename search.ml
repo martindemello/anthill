@@ -54,24 +54,25 @@ let _build dawg bag path ~all ~multi =
       Dawg.foreach_sib dawg (follow bag) path
     and follow bag path =
       let letter = Letter (Dawg.letter dawg path.Dawg.node) in
-      match Bag.play letter bag with
+      match Bag.play bag letter with
       | _, None -> ()
       | new_bag, Some(_played) ->
-          begin
-            let played = char_of_node _played in
-            if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
-            else begin
+        begin
+          let played = char_of_node _played in
+          if Bag.is_empty new_bag then add_word (Dawg.uword_of dawg path played)
+          else
+            begin
               if all then
                 add_word (Dawg.uword_of dawg path played);
               if (multi && Dawg.is_word dawg path) then
-                traverse new_bag (Dawg.new_word dawg path);
-              try
-                traverse new_bag (Dawg.ustep dawg path played)
-              with Not_found -> ()
-            end
-          end
+                traverse new_bag (Dawg.new_word dawg path)
+            end;
+          try
+            traverse new_bag (Dawg.ustep dawg path played)
+          with Not_found -> ()
+        end
     in
-      traverse bag path;
+    traverse bag path;
   in collecting traversal
 ;;
 

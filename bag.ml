@@ -3,38 +3,74 @@
 
 open Types
 
-module MultiSet = Map.Make(struct type t = node let compare = compare end)
+module MultiSet = Map.Make(struct type t = char let compare = compare end)
 
-(* note that a bag can contain only one '*' *)
-let add letter bag =
-  try let n = MultiSet.find letter bag in
-  MultiSet.add letter (if letter == Star then n else (succ n)) bag
-  with Not_found -> MultiSet.add letter 1 bag;;
+type bag = {
+  letters : int MultiSet.t;
+  blanks : int;
+  star : bool;
+}
 
-let remove letter bag =
-  let n = MultiSet.find letter bag in
-  if n = 1 then MultiSet.remove letter bag
-  else MultiSet.add letter (pred n) bag;;
+let empty = {
+  letters =  MultiSet.empty;
+  blanks = 0;
+  star = false
+}
 
-let remove_blank bag =
-  try remove Dot bag
-  with Not_found -> let _ = MultiSet.find Star bag in bag;;
+let ms_inc ms letter =
+  try
+    let n = MultiSet.find letter ms in
+    MultiSet.add letter (succ n) ms
+  with Not_found ->
+    MultiSet.add letter 1 ms
+
+let ms_dec ms letter =
+  match MultiSet.find letter ms with
+  | 1 -> MultiSet.remove letter ms
+  | n -> MultiSet.add letter (pred n) ms;;
+
+let ms_count ms letter =
+  try
+    MultiSet.find letter ms
+  with Not_found ->
+    0
+
+let add letter bag = match letter with
+| Star -> { bag with star = true }
+| Dot -> { bag with blanks = bag.blanks + 1 }
+| Letter c -> { bag with letters = (ms_inc bag.letters c) }
+
+let has_letter bag letter = match letter with
+| Star -> bag.star
+| Dot -> bag.blanks > 0
+| Letter c -> ms_count bag.letters c > 0
+
+let remove bag letter =
+  if has_letter bag letter then
+    let new_bag = match letter with
+    | Star -> { bag with star = false }
+    | Dot -> { bag with blanks = bag.blanks - 1}
+    | Letter c -> { bag with letters = ms_dec bag.letters c }
+    in (new_bag, Some letter)
+  else
+    (bag, None)
 
 (* Remove a letter from a bag
  * if the letter doesn't exist, try removing a blank *)
-let play letter bag =
-  try (remove letter bag, Some letter)
-  with Not_found ->
-    try (remove_blank bag, Some Dot)
-    with Not_found -> (bag, None)
+let play bag letter =
+  match remove bag letter with
+  | (_, Some c) as b -> b
+  | _, None ->
+      if bag.star then
+        (bag, Some letter)
+      else
+        remove bag Dot
 
 let of_rack rack =
-  let bag = ref MultiSet.empty in
+  let bag = ref empty in
   List.iter (fun i -> bag := add i !bag) rack;
   !bag;;
 
-let empty = MultiSet.empty;;
-
 let is_empty bag =
-  try let b = remove Star bag in b == empty
-  with Not_found -> bag == empty;;
+  bag.blanks == 0 &&
+  MultiSet.is_empty bag.letters

@@ -73,9 +73,10 @@ let run_test env =
   let trail = [(Letter 'h'); Group (Group.of_string "ace"); (Letter 'm')] in
   display_result (Search.pattern env.dawg trail);
 
-  let bag = Bag.of_rack (Search.trail_of_string "pink.") in
+  let bag = Bag.of_rack (Search.trail_of_string "pink*") in
   display_result (Search.anagrams env.dawg bag);
-*)
+  *)
+
   let mw = Bag.of_rack (Search.trail_of_string "plantagenet") in
   display_result (Search.multi_words env.dawg mw)
 
