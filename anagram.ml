@@ -39,7 +39,7 @@ let empty = Node (false, Cmap.empty)
 let add t w =
   let n = String.length w in
   let rec addrec i (Node (b,m) as t) =
-    if i = n then  
+    if i = n then
       if b then t else Node (true,m)
     else
       let c = w.[i] in
@@ -68,7 +68,7 @@ let mem t w =
     and apply recursively the algorithm with \emph{one occurrence} of [c] being
     removed. When the collection of characters is empty, we simply test
     the boolean at the current node. Whenever a branch is missing, we stop
-    the exploration. 
+    the exploration.
 
     It appears that we need to deal with \emph{multi-sets} of characters.
     Indeed, we have to keep the collection of characters which have not yet
@@ -84,7 +84,7 @@ let ms_add c m =
   with Not_found -> Cmap.add c 1 m
 
 let ms_remove c m =
-  let n = Cmap.find c m in 
+  let n = Cmap.find c m in
   if n = 1 then Cmap.remove c m else Cmap.add c (pred n) m
 
 let ms_of_string w =
@@ -92,10 +92,10 @@ let ms_of_string w =
   let rec add i = if i = n then Cmap.empty else ms_add w.[i] (add (succ i)) in
   add 0
 
-(*s Then implementing the above algorithm is rather easy. During the 
+(*s Then implementing the above algorithm is rather easy. During the
     exploration, we keep three values: first, the current path [pref]
-    from the root of the initial tree, in reverse order; secondly, the 
-    current node being examined, [(b,m)]; and finally, the current 
+    from the root of the initial tree, in reverse order; secondly, the
+    current node being examined, [(b,m)]; and finally, the current
     multi-set of characters [s]. *)
 
 let subset = ref true
@@ -105,47 +105,53 @@ let rec print_prefix = function
   | c::l -> print_prefix l; print_char c
 
 let anagram d w =
-  let rec traverse pref (Node (b,m)) s = 
-    if b && (s = Cmap.empty || !subset) then begin 
-      print_prefix pref; print_newline () 
+  let rec traverse pref (Node (b,m)) s =
+    if b && (s = Cmap.empty || !subset) then begin
+      print_prefix pref; print_newline ()
     end;
     Cmap.iter
-      (fun c _ -> 
-	 try traverse (c::pref) (Cmap.find c m) (ms_remove c s) 
-	 with Not_found -> ()) s
+      (fun c _ ->
+         try traverse (c::pref) (Cmap.find c m) (ms_remove c s)
+      with Not_found -> ()) s;
+    if b then
+      Cmap.iter
+        (fun c _ ->
+           try traverse (' '::c::pref) d (ms_remove c s)
+           with Not_found -> ()) s
+
   in
   traverse [] d (ms_of_string w)
 
 (*s Building the dictionary. The function [add_one_file] read all the
-    words contained in file [file] and inserts them in the tree [t]. 
+    words contained in file [file] and inserts them in the tree [t].
     Then function [build_dict] constructs the whole dictionary by
     successively inserting the words for the given list of files. *)
 
 let add_one_file t file =
   Printf.printf "Reading %s\n" file; flush stdout;
   let ch = open_in file in
-  let rec read t = 
+  let rec read t =
     try let w = input_line ch in read (add t w) with End_of_file -> t
   in
   let t' = read t in close_in ch; t'
 
 let build_dict = List.fold_left add_one_file empty
 
-(*s The following function [print_all] prints all the words of a given 
+(*s The following function [print_all] prints all the words of a given
     dictionary. Only used for checks (option \texttt{-a}). *)
 
 let print_all d =
-  let rec traverse pref (Node (b, m)) = 
+  let rec traverse pref (Node (b, m)) =
     if b then begin print_prefix pref; print_newline () end;
     Cmap.iter (fun c t -> traverse (c::pref) t) m
   in
   traverse [] d
 
-(*s The main program. It mainly provides two ways of invoking the program: 
-    first, the option \texttt{-b} will build the dictionary from the given 
-    files and put it in the file ["dict.out"]; 
+(*s The main program. It mainly provides two ways of invoking the program:
+    first, the option \texttt{-b} will build the dictionary from the given
+    files and put it in the file ["dict.out"];
     secondly, the program invoked with a word on the command line
-    will print all the anagrams for this word. 
+    will print all the anagrams for this word.
     Option \texttt{-e} specifies exact anagrams (i.e., with all characters
     used). *)
 
@@ -163,7 +169,7 @@ let usage () =
 let main () =
   match List.tl (Array.to_list Sys.argv) with
     | [] | "-h" :: _ -> usage ()
-    | "-a" :: _ -> let d = input_dict () in print_all d 
+    | "-a" :: _ -> let d = input_dict () in print_all d
     | "-b" :: files -> let d = build_dict files in output_dict d
     | "-e" :: w :: _ -> subset := false; let d = input_dict () in anagram d w
     | w :: _ -> let d = input_dict () in anagram d w
