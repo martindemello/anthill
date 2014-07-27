@@ -19,3 +19,4 @@ type node = {
   mutable children: ((node option) array) option;
 }
 
+exception Unsupported_feature

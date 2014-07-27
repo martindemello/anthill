@@ -39,11 +39,13 @@ let add letter bag = match letter with
 | Star -> { bag with star = true }
 | Dot -> { bag with blanks = bag.blanks + 1 }
 | Letter c -> { bag with letters = (ms_inc bag.letters c) }
+| Group _ -> raise Unsupported_feature
 
 let has_letter bag letter = match letter with
 | Star -> bag.star
 | Dot -> bag.blanks > 0
 | Letter c -> ms_count bag.letters c > 0
+| Group _ -> raise Unsupported_feature
 
 let remove bag letter =
   if has_letter bag letter then
@@ -51,6 +53,7 @@ let remove bag letter =
     | Star -> { bag with star = false }
     | Dot -> { bag with blanks = bag.blanks - 1}
     | Letter c -> { bag with letters = ms_dec bag.letters c }
+    | Group _ -> raise Unsupported_feature
     in (new_bag, Some letter)
   else
     (bag, None)
