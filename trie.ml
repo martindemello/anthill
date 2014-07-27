@@ -40,18 +40,22 @@ let add node letters =
     String.iter letters add_letter;
     !n.eow <- true
 
+let foreach_child node f =
+  match node.children with
+  | None -> ()
+  | Some ch ->
+    Array.iteri (fun i c ->
+        match c with
+        | None -> ()
+        | Some child -> f (letter i) child
+      ) ch
+
 let printall node prefix =
   let rec traverse node prefix =
     if node.eow then
       Printf.printf "%s\n" (String.of_char_list (List.rev prefix));
-    match node.children with
-    | None -> ()
-    | Some ch -> 
-      Array.iteri (fun i c ->
-          match c with
-          | None -> ()
-          | Some child -> traverse child ((letter i) :: prefix)
-        ) ch
+    foreach_child node (fun c child ->
+      traverse child (c :: prefix))
   in
   traverse node prefix
 
