@@ -1,4 +1,5 @@
 open Printf
+open Core.Std
 
 type node = {
   mutable eow: bool;
@@ -10,43 +11,39 @@ let new_node eow = {
   children = None;
 }
 
-let new_child_array () = Array.make 26 None
+let new_child_array () = Array.create 26 None
 
-let implode l =
-  let s = String.create (List.length l) in
-  let rec f n = function
-    | x :: xs -> s.[n] <- x; f (n + 1) xs
-    | [] -> s
-  in f 0 l
+let is_none n = phys_equal n None
 
 (* letter <-> index *)
-let index c = (Char.code c) - 97
-let letter i = Char.chr (i + 97)
+let index c = (Char.to_int c) - 97
+let letter i = match Char.of_int (i + 97) with
+  | Some c -> c
+  | None -> '#'
 
 let add node letters =
   let n = ref node in
-  let last = String.length letters - 1 in
-  let add_letter i letter =
-    let eow = i == last in
+  let add_letter letter =
     let ix = index letter in
-    if !n.children == None then
+    if is_none !n.children then
       !n.children <- Some (new_child_array ());
     match !n.children with
     | None -> (); (* should never happen *)
     | Some ch -> begin
-        if ch.(ix) == None then
+        if is_none ch.(ix) then
           ch.(ix) <- Some (new_node false);
         match ch.(ix) with
         | None -> ()
-        | Some node -> (node.eow <- eow; n := node)
+        | Some node -> n := node
     end
     in
-    String.iteri add_letter letters
+    String.iter letters add_letter;
+    !n.eow <- true
 
 let printall node prefix =
   let rec traverse node prefix =
     if node.eow then
-      Printf.printf "%s\n" (implode (List.rev prefix));
+      Printf.printf "%s\n" (String.of_char_list (List.rev prefix));
     match node.children with
     | None -> ()
     | Some ch -> 
@@ -54,15 +51,14 @@ let printall node prefix =
           match c with
           | None -> ()
           | Some child -> traverse child ((letter i) :: prefix)
-        )
-        ch
+        ) ch
   in
   traverse node prefix
 
 let _ =
   let root = new_node false in
-  add root "hello";
-  add root "world";
+  let words = In_channel.read_lines "csw.lower" in
+  List.iter words (fun w -> add root w);
   printall root []
 
 

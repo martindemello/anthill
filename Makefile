@@ -1,4 +1,8 @@
-all: native
+all: trie
+
+trie:
+	ocamlbuild trie.native
+	cp -L trie.native trie
 
 native:
 	ocamlbuild varix.native
