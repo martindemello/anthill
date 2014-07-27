@@ -12,3 +12,10 @@ let tile_of_char c = match c with
 | '.' -> Dot
 | '*' -> Star
 | c   -> Letter c
+
+(* trie node *)
+type node = {
+  mutable eow: bool;
+  mutable children: ((node option) array) option;
+}
+

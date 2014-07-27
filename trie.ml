@@ -1,10 +1,6 @@
 open Printf
 open Core.Std
-
-type node = {
-  mutable eow: bool;
-  mutable children: ((node option) array) option;
-}
+include Types
 
 let new_node eow = {
   eow = eow;
@@ -59,51 +55,11 @@ let printall node prefix =
   in
   traverse node prefix
 
-let _ =
+let of_list words =
   let root = new_node false in
-  let words = In_channel.read_lines "csw.lower" in
   List.iter words (fun w -> add root w);
-  printall root []
+  root
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+let load_from_text_file filename =
+  let words = In_channel.read_lines filename in
+  of_list words
