@@ -77,3 +77,9 @@ let of_rack rack =
 let is_empty bag =
   bag.blanks == 0 &&
   MultiSet.is_empty bag.letters
+
+let has_wildcards bag =
+  bag.blanks == 0 && not bag.star
+
+let iter_letters bag f =
+  MultiSet.iter (fun c _ -> f c) bag.letters

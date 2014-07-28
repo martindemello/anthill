@@ -43,13 +43,20 @@ let foreach_child node f =
     Array.iteri (fun i c ->
         match c with
         | None -> ()
-        | Some child -> f (letter i) child
+        | Some child -> f i child
       ) ch
+
+let char_of_int i = match Char.of_int (i + 97) with
+  | Some c -> c
+  | None -> '#'
+
+let word_of prefix =
+  String.of_char_list (List.map (List.rev prefix) char_of_int)
 
 let printall node prefix =
   let rec traverse node prefix =
     if node.eow then
-      Printf.printf "%s\n" (String.of_char_list (List.rev prefix));
+      Printf.printf "%s\n" (word_of prefix);
     foreach_child node (fun c child ->
       traverse child (c :: prefix))
   in
