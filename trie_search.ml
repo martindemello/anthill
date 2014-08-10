@@ -40,7 +40,7 @@ let collecting traversal =
   Sset.to_list (Sset.of_list !retval)
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
-let _pattern trie prefix trail =
+let pattern trie prefix trail =
   let traversal add_word =
     let rec traverse node prefix trail =
       match trail with
@@ -66,7 +66,7 @@ let _pattern trie prefix trail =
 
 (* Build all possible words from a bag and a trie *
  * if all = false, return only words using the entire bag *)
-let _build trie path bag ~all ~multi =
+let build trie prefix bag ~all ~multi =
   let traversal add_word =
     let rec traverse node prefix =
       Trie.foreach_child node (fun c child ->
@@ -92,18 +92,18 @@ let _build trie path bag ~all ~multi =
           Mutable_rack.add bag played
         end
     in
-    traverse trie path;
+    traverse trie prefix;
   in collecting traversal
 ;;
 
 let test_multi_anags trie word =
   let bag = Mutable_rack.of_rack (trail_of_string "planted") in
-  let l = _build trie [] bag ~all:false ~multi:true in
+  let l = build trie [] bag ~all:false ~multi:true in
   List.iter l (fun w -> printf "%s\n" w)
 
 let _ =
   let root = Trie.load_from_text_file "csw.lower" in
   (*let trail = trail_of_string "h.m" in*)
   let trail = [(Letter 7); Group (Group.of_string "ace"); Star; (Letter 12)] in
-  let l = _pattern root [] trail in
+  let l = pattern root [] trail in
   List.iter l (fun w -> printf "%s\n" w);
