@@ -46,6 +46,25 @@ let foreach_child node f =
         | Some child -> f i child
       ) ch
 
+let for_child_in_group node group f =
+  match node.children with
+  | None -> ()
+  | Some ch ->
+      List.iter group (fun i ->
+        match ch.(i) with
+        | None -> ()
+        | Some child -> f i child
+      )
+
+let with_child node i f =
+  match node.children with
+  | None -> ()
+  | Some ch ->
+      match ch.(i) with
+      | None -> ()
+      | Some child -> f i child
+
+
 let char_of_int i = match Char.of_int (i + 97) with
   | Some c -> c
   | None -> '#'

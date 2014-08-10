@@ -1,4 +1,4 @@
-type group = Group.CharSet.t;;
+type group = int list;;
 
 type tile = Letter of int | Group of group | Dot | Star
 
