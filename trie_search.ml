@@ -26,7 +26,7 @@ let display sw =
   | None -> "[]"
   | Some w -> w
 
-let word_of prefix = 
+let word_of prefix =
   Some (String.of_char_list (List.map (List.rev prefix) char_of_int))
 
 (*************************************************************************
@@ -72,22 +72,23 @@ let _build trie path bag ~all ~multi =
       Trie.foreach_child node (fun c child ->
           follow child c prefix)
     and follow node c prefix =
-      let letter = Mutable_rack.play bag c in 
+      let letter = Mutable_rack.play bag c in
       match letter with
       | None -> ()
       | Some played ->
         begin
+          let prefix = c :: prefix in
           if (Mutable_rack.is_empty bag) && node.eow then
-            add_word (word_of (c :: prefix))
+            add_word (word_of prefix)
           else
             begin
               if all && node.eow then
-                add_word (word_of (c :: prefix));
+                add_word (word_of prefix);
               if multi && node.eow then begin
-                traverse trie (space :: c :: prefix);
+                traverse trie (space :: prefix);
               end
             end;
-          traverse node (c :: prefix);
+          traverse node prefix;
           Mutable_rack.add bag played
         end
     in
