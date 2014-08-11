@@ -101,9 +101,15 @@ let test_multi_anags trie word =
   let l = build trie [] bag ~all:false ~multi:true in
   List.iter l (fun w -> printf "%s\n" w)
 
+let test_pattern trie str =
+  match Parser.read_term str with
+  | MParser.Success trail -> begin
+      let l = pattern trie [] trail in
+      List.iter l (fun w -> printf "%s\n" w)
+    end
+  | MParser.Failed (m, e) -> printf "%s\n" m
+
+
 let _ =
   let root = Trie.load_from_text_file "csw.lower" in
-  (*let trail = trail_of_string "h.m" in*)
-  let trail = [(Letter 7); Group (Group.of_string "ace"); Star; (Letter 12)] in
-  let l = pattern root [] trail in
-  List.iter l (fun w -> printf "%s\n" w);
+  test_pattern root "h[ace]*m"

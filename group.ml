@@ -1,8 +1,5 @@
 open Core.Std
-
-let from_upper c = (Char.to_int c) - 65
-
-let from_lower c = (Char.to_int c) - 97
+include Utility
 
 let empty = []
 

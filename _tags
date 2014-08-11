@@ -4,5 +4,5 @@
 "varix": syntax(camlp4o)
 "ledit": -traverse
 
-true: package(core,sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax)
+true: package(core,sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,mparser)
 true: thread,debug
