@@ -91,7 +91,7 @@ let _anagram trie prefix trail ~all ~multi =
 ;;
 
 module TrieEngine = struct
-  type dict = Trie.node
+  type dict = Trie.t
 
   let pattern trie trail = _pattern trie [] trail
 

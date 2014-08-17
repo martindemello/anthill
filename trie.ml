@@ -8,6 +8,9 @@ type node = {
   mutable children: ((node option) array) option;
 }
 
+(* provide access as Trie.t when passing a trie around *)
+type t = node
+
 let new_node eow = {
   eow = eow;
   children = None;
