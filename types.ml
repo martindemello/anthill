@@ -13,10 +13,4 @@ let tile_of_char c = match c with
 | '*' -> Star
 | c   -> Letter (Char.code c - 97)
 
-(* trie node *)
-type node = {
-  mutable eow: bool;
-  mutable children: ((node option) array) option;
-}
-
 exception Unsupported_feature

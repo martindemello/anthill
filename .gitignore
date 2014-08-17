@@ -1,6 +1,5 @@
 *.cmi
 *.cmo
-*.mli
 _build/*
 *.o
 *.cmx

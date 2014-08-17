@@ -1,6 +1,12 @@
 open Printf
 open Core.Std
-include Types
+open Types
+
+(* trie node *)
+type node = {
+  mutable eow: bool;
+  mutable children: ((node option) array) option;
+}
 
 let new_node eow = {
   eow = eow;

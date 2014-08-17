@@ -1,5 +1,7 @@
 open Utility
 open Core.Std
+open Engine
+include Trie
 include Types
 
 (*************************************************************************
@@ -7,15 +9,6 @@ include Types
  * ***********************************************************************)
 
 let space = 32 - 97
-
-let explode str = String.to_list str
-
-let trail_of_string str =
-  let node_of_char chr = match chr with
-  | '.' -> Dot
-  | '*' -> Star
-  | c   -> Letter (Char.to_int c - 97)
-  in List.map (explode str) node_of_char;;
 
 let char_of_int i = match Char.of_int (i + 97) with
   | Some c -> c
@@ -40,7 +33,7 @@ let collecting traversal =
   Sset.to_list (Sset.of_list !retval)
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
-let pattern trie prefix trail =
+let _pattern trie prefix trail =
   let traversal add_word =
     let rec traverse node prefix trail =
       match trail with
@@ -66,7 +59,8 @@ let pattern trie prefix trail =
 
 (* Build all possible words from a bag and a trie *
  * if all = false, return only words using the entire bag *)
-let build trie prefix bag ~all ~multi =
+let _anagram trie prefix trail ~all ~multi =
+  let bag = Mutable_rack.of_rack trail in
   let traversal add_word =
     let rec traverse node prefix =
       Trie.foreach_child node (fun c child ->
@@ -96,20 +90,13 @@ let build trie prefix bag ~all ~multi =
   in collecting traversal
 ;;
 
-let test_multi_anags trie word =
-  let bag = Mutable_rack.of_rack (trail_of_string "planted") in
-  let l = build trie [] bag ~all:false ~multi:true in
-  List.iter l (fun w -> printf "%s\n" w)
+module TrieEngine = struct
+  type dict = Trie.node
 
-let test_pattern trie str =
-  match Parser.read_term str with
-  | MParser.Success trail -> begin
-      let l = pattern trie [] trail in
-      List.iter l (fun w -> printf "%s\n" w)
-    end
-  | MParser.Failed (m, e) -> printf "%s\n" m
+  let pattern trie trail = _pattern trie [] trail
 
+  let anagram trie trail ~all ~multi =
+    _anagram trie [] trail ~all:all ~multi:multi
 
-let _ =
-  let root = Trie.load_from_text_file "csw.lower" in
-  test_pattern root "h[ace]*m"
+  let exists trie string = true
+end
