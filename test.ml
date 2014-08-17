@@ -18,14 +18,22 @@ let test_multi_anags trie word =
   List.iter l (fun w -> printf "%s\n" w)
 
 let test_pattern trie str =
-  match Parser.read_term str with
-  | MParser.Success trail -> begin
-      let l = TrieEngine.pattern trie trail in
+  match Parser.parse str with
+  | MParser.Success line -> begin
+      let l = match line with
+        | Tiles trail -> TrieEngine.pattern trie trail
+        | Expr (op, trail) -> begin
+            match op with
+            | Anagram -> TrieEngine.anagram trie trail ~all:true ~multi:false
+            | Build -> TrieEngine.anagram trie trail ~all:false ~multi:false
+            | Pattern -> TrieEngine.pattern trie trail
+            | Fn s -> [s]
+          end 
+      in
       List.iter l (fun w -> printf "%s\n" w)
     end
   | MParser.Failed (m, e) -> printf "%s\n" m
 
-
 let _ =
   let root = Trie.load_from_text_file "csw.lower" in
-  test_pattern root "h[ace]*m"
+  test_pattern root "p h[ace]*m"

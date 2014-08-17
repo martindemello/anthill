@@ -1,6 +1,8 @@
-type group = int list;;
+type group = int list
 
 type tile = Letter of int | Group of group | Dot | Star
+
+type tiles = tile list
 
 let char_of_tile n = match n with
 | Letter c -> Char.chr (c + 97)
@@ -14,3 +16,13 @@ let tile_of_char c = match c with
 | c   -> Letter (Char.code c - 97)
 
 exception Unsupported_feature
+
+(* parser and evaluator *)
+
+type uop = Anagram | Build | Pattern | Fn of string;;
+type bop = Union | Inter | Diff ;;
+type rack = Rack of string;;
+
+type line = Tiles of tiles | Expr of uop * tiles 
+
+type elem = Nop | Primitive of uop * rack | Words of string list

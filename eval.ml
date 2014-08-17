@@ -21,13 +21,6 @@ let build_of_rack dawg rack = Search.all_words dawg (Bag.of_rack rack);;
  * parser and evaluator
  * ***********************************************************************)
 
-(* types *)
-
-type uop = Anagram | Build | Pattern ;;
-type bop = Union | Inter | Diff ;;
-type rack = Rack of string;;
-
-type elem = Nop | Primitive of uop * rack | Words of string list
 
 let list_of_elem e = e
 
