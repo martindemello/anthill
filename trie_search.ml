@@ -95,8 +95,8 @@ module TrieEngine = struct
 
   let pattern trie trail = _pattern trie [] trail
 
-  let anagram trie trail ~all ~multi =
-    _anagram trie [] trail ~all:all ~multi:multi
+  let anagram trie trail ~multi ~all =
+    _anagram trie [] trail ~multi:multi ~all:all
 
   let exists trie string = true
 end
