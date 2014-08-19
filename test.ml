@@ -9,11 +9,11 @@ module Eval = Evaluator.Make (Env) (TrieEngine)
 
 let test_pattern env str =
   match Parser.parse str with
-  | MParser.Success line -> begin
+  | Ok line -> begin
       let l = Eval.eval env line in
       List.iter l (fun w -> printf "%s\n" w)
     end
-  | MParser.Failed (m, e) -> printf "%s\n" m
+  | Error m -> printf "%s\n" m
 
 let _ =
   let root = Trie.load_from_text_file "csw.lower" in

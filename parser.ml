@@ -1,6 +1,9 @@
 open MParser
-include Types
-include Utility
+open Types
+open Utility
+
+module String = Core.Std.String
+module Result = Core.Std.Result
 
 let make_group l = Group (Group.of_char_list l)
 let make_uletter l = Letter (from_upper l)
@@ -31,7 +34,7 @@ let term : (tiles, unit) parser = many1 tile
 
 let fname : (string, unit) parser =
   pipe2 letter (many alphanum) (
-    fun c cs -> Core.Std.String.of_char_list (c :: cs))
+    fun c cs -> String.of_char_list (c :: cs))
 
 let uop : (uop, unit) parser = fname |>> make_uop
 
@@ -44,4 +47,6 @@ let line : (line, unit) parser =
 
 let read_term str = parse_string term str ()
 
-let parse s = parse_string line s ()
+let parse s = match parse_string line s () with
+| MParser.Success line -> Result.Ok line
+| MParser.Failed (m, e) -> Result.Error m
