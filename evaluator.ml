@@ -11,8 +11,8 @@ module Make =
 
     let eval env line =
       let run dict op trail = match op with
-        | Anagram -> E.anagram dict trail ~all:true ~multi:false
-        | Build -> E.anagram dict trail ~all:false ~multi:false
+        | Anagram -> E.anagram dict trail ~all:false ~multi:false
+        | Build -> E.anagram dict trail ~all:true ~multi:false
         | Pattern -> E.pattern dict trail
         | Fn s -> [s]
       in

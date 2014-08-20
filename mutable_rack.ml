@@ -9,7 +9,7 @@ type bag = {
   mutable star : bool;
 }
 
-let empty = {
+let empty () = {
   letters = Array.create 26 0;
   blanks = 0;
   n_letters = 0;
@@ -49,7 +49,7 @@ let remove bag letter =
   let ret = has_letter bag letter in
   if ret then (
     match letter with
-    | Star -> bag.star <- false (* for completeness *)
+    | Star -> () (* for completeness *)
     | Dot -> bag.blanks <- bag.blanks - 1
     | Letter c -> dec bag c
     | Group _ -> raise Unsupported_feature
@@ -69,7 +69,7 @@ let play bag c =
     None
 
 let of_rack rack =
-  let bag = empty in
+  let bag = empty () in
   List.iter (fun i -> add bag i) rack;
   bag
 
@@ -77,4 +77,4 @@ let is_empty bag =
   bag.blanks == 0 && bag.n_letters == 0
 
 let has_wildcards bag =
-  bag.blanks == 0 && not bag.star
+  bag.blanks > 0 || bag.star
