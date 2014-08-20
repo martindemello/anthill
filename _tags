@@ -2,7 +2,6 @@
          package(mikmatch_pcre), package(pcre), package(batteries), \
          package(aurochs_lib), package(ledit_lib)
 "varix": syntax(camlp4o)
-"ledit": -traverse
 
-true: package(core,sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,mparser)
+true: package(core,sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,mparser,ledit_lib)
 true: thread,debug

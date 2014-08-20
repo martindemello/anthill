@@ -18,4 +18,4 @@ let test_pattern env str =
 let _ =
   let root = Trie.load_from_text_file "csw.lower" in
   let env = { Env.dict = root; op = Anagram } in
-  test_pattern env "p h[ace]*m"
+  Repl.repl env

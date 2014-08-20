@@ -3,7 +3,7 @@ module type ENV = sig
 
   type env = {
     dict : dict;
-    op : Types.uop
+    mutable op : Types.uop
   }
 end
 
@@ -12,7 +12,7 @@ module Make (Dict : sig type t end) = struct
 
   type env = {
     dict : dict;
-    op : Types.uop
+    mutable op : Types.uop
   }
 end
 

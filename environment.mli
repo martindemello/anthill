@@ -3,7 +3,7 @@ module type ENV = sig
 
   type env = {
     dict : dict;
-    op : Types.uop
+    mutable op : Types.uop
   }
 end
 
