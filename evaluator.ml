@@ -19,5 +19,7 @@ module Make =
       match line with
       | Tiles trail -> run env.dict env.op trail
       | Expr (Uop (op, trail)) -> run env.dict op trail
+      | Expr (Var s) -> ["<- " ^ s]
+      | Assign (v, e) -> [v ^ " <-"]
       | _ -> raise Unsupported_feature
   end

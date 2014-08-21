@@ -26,10 +26,9 @@ type rack = Rack of string;;
 type expr =
   | WList of string list
   | Var of string
-  | Assign of string * expr
   | Uop of uop * tiles
   | Bop of bop * expr * expr
 
-type line = Tiles of tiles | Expr of expr
+type line = Tiles of tiles | Expr of expr | Assign of string * expr
 
 type elem = Nop | Primitive of uop * rack | Words of string list
