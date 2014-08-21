@@ -23,6 +23,13 @@ type uop = Anagram | Build | Pattern | Fn of string;;
 type bop = Union | Inter | Diff ;;
 type rack = Rack of string;;
 
-type line = Tiles of tiles | Expr of uop * tiles 
+type expr =
+  | WList of string list
+  | Var of string
+  | Assign of string * expr
+  | Uop of uop * tiles
+  | Bop of bop * expr * expr
+
+type line = Tiles of tiles | Expr of expr
 
 type elem = Nop | Primitive of uop * rack | Words of string list

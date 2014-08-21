@@ -11,6 +11,8 @@ let make_lletter l = Letter (from_lower l)
 let make_dot l = Dot
 let make_star l = Star
 
+let make_var s = Var s
+
 let make_uop s = 
   match (String.lowercase s) with
   | "a" | "anagram" -> Anagram
@@ -18,7 +20,7 @@ let make_uop s =
   | "b" | "build" -> Build
   | s -> Fn s
 
-let make_unary_expr s t = Expr (s, t)
+let make_unary_expr s t = Expr (Uop (s, t))
 let make_implicit_expr s = Tiles s
 
 let group = Tokens.squares (many1 alphanum)

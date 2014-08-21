@@ -33,12 +33,13 @@ let print_instructions () =
   flush stdout
 
 let op env expr = match expr with
-| Expr (o, _) -> o
+| Expr (Uop (o, _)) -> o
 | _ -> env.Env.op
 
 let display_result env expr ws =
   let wlist = match (op env expr) with
   | Anagram -> sort_by caps_in ws
+  | Build -> sort_by String.length ws
   | _ -> ws
   in
   List.iter wlist (printf "%s\n");

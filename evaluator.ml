@@ -18,5 +18,6 @@ module Make =
       in
       match line with
       | Tiles trail -> run env.dict env.op trail
-      | Expr (op, trail) -> run env.dict op trail
+      | Expr (Uop (op, trail)) -> run env.dict op trail
+      | _ -> raise Unsupported_feature
   end
