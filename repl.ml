@@ -1,6 +1,7 @@
 open Types
 open Core.Std
 open Trie_search
+open Utility
 
 module Env = Environment.Make (Trie)
 
@@ -31,23 +32,32 @@ let print_instructions () =
   print_endline "------------------------------------------------";
   flush stdout
 
-let display_result ws =
-  List.iter ws (printf "%s\n");
+let op env expr = match expr with
+| Expr (o, _) -> o
+| _ -> env.Env.op
+
+let display_result env expr ws =
+  let wlist = match (op env expr) with
+  | Anagram -> sort_by caps_in ws
+  | _ -> ws
+  in
+  List.iter wlist (printf "%s\n");
   flush stdout
 
 let show_exc x = Printf.printf "Exception: %s\n%!" (Exn.to_string x)
 
-let bad_command () =
-  printf "Bad command\n";
+let display_error e =
+  printf "Error: %s\n" e;
   flush stdout
 
 let run env str =
   try
-    let l = match Parser.parse str with
-      | Result.Ok expr -> Eval.eval env expr
-      | Result.Error m -> [m]
-    in
-    display_result l
+    match Parser.parse str with
+    | Result.Ok expr -> begin
+        let l = Eval.eval env expr in
+        display_result env expr l
+      end
+    | Result.Error m -> display_error m
   with
   | x -> show_exc x
 

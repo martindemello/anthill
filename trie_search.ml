@@ -10,6 +10,8 @@ include Types
 
 let space = 32 - 97
 
+let upper i = i + 65 - 97
+
 let char_of_int i = match Char.of_int (i + 97) with
   | Some c -> c
   | None -> '#'
@@ -71,7 +73,10 @@ let _anagram trie prefix trail ~all ~multi =
       | None -> ()
       | Some played ->
         begin
-          let prefix = c :: prefix in
+          let prefix = match played with
+          | Letter _ -> c :: prefix
+          | _ -> (upper c) :: prefix
+          in
           if (Mutable_rack.is_empty bag) && node.eow then
             add_word (word_of prefix)
           else
