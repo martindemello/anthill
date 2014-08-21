@@ -10,8 +10,8 @@ module Eval = Evaluator.Make (Env) (TrieEngine)
 let prompt = function
   | Anagram -> "anagram > "
   | Pattern -> "pattern > "
-  | Build -> "build >"
-  | Fn s -> s ^ " >"
+  | Build -> "build > "
+  | Fn s -> s ^ " > "
 
 let readline prompt =
   Ledit.set_prompt prompt;
@@ -51,11 +51,13 @@ let display_error e =
   flush stdout
 
 let run env str =
+  let open Env in
   try
     match Parser.parse str with
     | Result.Ok expr -> begin
         let l = Eval.eval env expr in
-        display_result env expr l
+        display_result env expr l;
+        env.op <- op env expr
       end
     | Result.Error m -> display_error m
   with
