@@ -23,7 +23,7 @@ type uop = Anagram | Build | Pattern | Fn of string;;
 type bop = Union | Inter | Diff ;;
 
 type expr =
-  | WList of string list
+  | Words of Wordset.t
   | Var of string
   | Uop of uop * tiles
   | Bop of bop * expr * expr

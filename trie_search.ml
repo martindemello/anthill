@@ -32,7 +32,7 @@ let collecting traversal =
   let retval = ref [] in
   let add_word = function None -> () | Some s -> retval := s :: !retval in
   traversal add_word;
-  Wordset.to_list (Wordset.of_list !retval)
+  Wordset.of_list !retval
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
 let _pattern trie prefix trail =

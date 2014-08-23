@@ -1,5 +1,6 @@
 open Engine
 open Environment
+open Wordset
 
 include Types
 
@@ -9,17 +10,31 @@ module Make =
   struct
     open Env
 
+    (* wordlist generation *)
+    let unary dict op trail = match op with
+      | Anagram -> E.anagram dict trail ~all:false ~multi:false
+      | Build -> E.anagram dict trail ~all:true ~multi:false
+      | Pattern -> E.pattern dict trail
+      | Fn s -> Wordset.of_list [s]
+
+    (* binary functions *)
+    let binary op l r =
+      match op with
+      | Union -> StringSet.union l r
+      | Inter -> StringSet.inter l r
+      | Diff  -> StringSet.diff  l r
+
+
+    let rec expr env e =
+      match e with
+      | Words w -> w
+      | Uop (op, trail) -> unary env.dict op trail
+      | Bop (op, l, r) -> binary op (expr env l) (expr env r)
+      | Var v -> Wordset.of_list ["<- " ^ v]
+
     let eval env line =
-      let run dict op trail = match op with
-        | Anagram -> E.anagram dict trail ~all:false ~multi:false
-        | Build -> E.anagram dict trail ~all:true ~multi:false
-        | Pattern -> E.pattern dict trail
-        | Fn s -> [s]
-      in
       match line with
-      | Tiles trail -> run env.dict env.op trail
-      | Expr (Uop (op, trail)) -> run env.dict op trail
-      | Expr (Var s) -> ["<- " ^ s]
-      | Assign (v, e) -> [v ^ " <-"]
-      | _ -> raise Unsupported_feature
+      | Expr e -> expr env e
+      | Assign (v, e) -> Wordset.of_list [v ^ " <-"]
+      | Tiles trail -> expr env (Uop (env.op, trail))
   end

@@ -37,6 +37,7 @@ let op env expr = match expr with
 | _ -> env.Env.op
 
 let display_result env expr ws =
+  let ws = Wordset.to_list ws in
   let wlist = match (op env expr) with
   | Anagram -> sort_by caps_in ws
   | Build -> sort_by String.length ws
