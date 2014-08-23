@@ -1,5 +1,7 @@
 module StringSet = Set.Make(String);;
 
+type t = StringSet.t
+
 let empty = StringSet.empty;;
 
 let of_list lst =

@@ -21,7 +21,6 @@ exception Unsupported_feature
 
 type uop = Anagram | Build | Pattern | Fn of string;;
 type bop = Union | Inter | Diff ;;
-type rack = Rack of string;;
 
 type expr =
   | WList of string list
@@ -30,5 +29,3 @@ type expr =
   | Bop of bop * expr * expr
 
 type line = Tiles of tiles | Expr of expr | Assign of string * expr
-
-type elem = Nop | Primitive of uop * rack | Words of string list
