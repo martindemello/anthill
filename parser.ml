@@ -61,7 +61,8 @@ let unary : (expr, unit) parser =
 let expr : (expr, unit) parser = unary <|> var
 
 let infix sym : (expr, unit) operator =
-  Infix (spaces >> skip_string sym >> spaces >> return (make_binary sym), Assoc_none)
+  Infix (spaces >> skip_string sym >> spaces >> return (make_binary sym),
+         Assoc_none)
 
 let operators =
   [

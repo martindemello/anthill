@@ -1,6 +1,8 @@
 open Core.Std
 include Utility
 
+type t = int list
+
 let empty = []
 
 let uniq l =

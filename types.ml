@@ -1,4 +1,4 @@
-type group = int list
+type group = Group.t
 
 type tile = Letter of int | Group of group | Dot | Star
 
