@@ -20,7 +20,7 @@ exception Unsupported_feature
 (* parser and evaluator *)
 
 type uop = Anagram | Build | Pattern | Fn of string;;
-type bop = Union | Inter | Diff ;;
+type bop = Union | Inter | Diff | Op of string;;
 
 type expr =
   | Words of Wordset.t

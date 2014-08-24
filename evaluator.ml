@@ -23,6 +23,7 @@ module Make =
       | Union -> StringSet.union l r
       | Inter -> StringSet.inter l r
       | Diff  -> StringSet.diff  l r
+      | Op _  -> raise Unsupported_feature
 
 
     let rec expr env e =
