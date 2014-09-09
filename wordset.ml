@@ -1,15 +1,8 @@
-module StringSet = Set.Make(String);;
+open Core.Std
 
-type t = StringSet.t
+module S = Set.Make(String)
 
-let empty = StringSet.empty;;
-
-let of_list lst =
-  List.fold_left (fun set i -> StringSet.add i set) empty lst;;
-
-let to_list set =
-  StringSet.elements set;;
+include S
 
 let to_lower set =
-  let add i set = StringSet.add (String.lowercase i) set in
-  StringSet.fold add set empty;;
+  fold set ~init:empty ~f:(fun s i -> add s (String.lowercase i));;

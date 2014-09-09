@@ -3,10 +3,16 @@ include Utility
 
 type t = int list
 
-let empty = []
+(* for Set.Elt *)
+let compare = List.compare ~cmp:Pervasives.compare
+let sexp_of_t = List.sexp_of_t Sexplib.Conv.sexp_of_int
+let t_of_sexp = List.t_of_sexp Sexplib.Conv.int_of_sexp
 
-let uniq l =
-  List.sort ~cmp:Pervasives.compare (List.dedup l)
+let empty () = []
+
+let sort = List.sort ~cmp:Pervasives.compare
+
+let uniq l = sort (List.dedup l)
 
 let of_char_list l =
   let rec readlist l g =

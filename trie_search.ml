@@ -95,13 +95,26 @@ let _anagram trie prefix trail ~all ~multi =
   in collecting traversal
 ;;
 
+let expand_groups trail =
+  let is_group = function Group _ -> true | _ -> false in
+  let (groups, rest) = List.partition_tf trail is_group in
+  let groups = List.map groups (function Group i -> i | _ -> []) in
+  let expanded_groups = Groupset.product groups in
+  List.map expanded_groups (fun i -> List.append (List.map i (fun j -> Letter j)) rest)
+
+let make_anags trie trail ~multi ~all =
+  let trails = expand_groups trail in
+  Wordset.union_list (
+    List.map trails (fun trail -> _anagram trie [] trail ~multi ~all))
+
+
 module TrieEngine = struct
   type dict = Trie.t
 
   let pattern trie trail = _pattern trie [] trail
 
   let anagram trie trail ~multi ~all =
-    _anagram trie [] trail ~multi:multi ~all:all
+    make_anags trie trail ~multi ~all
 
   let exists trie string = true
 end

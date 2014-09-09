@@ -21,9 +21,9 @@ module Make =
     let binary op l r =
       let (l, r) = (Wordset.to_lower l, Wordset.to_lower r) in
       match op with
-      | Union -> StringSet.union l r
-      | Inter -> StringSet.inter l r
-      | Diff  -> StringSet.diff  l r
+      | Union -> Wordset.union l r
+      | Inter -> Wordset.inter l r
+      | Diff  -> Wordset.diff  l r
       | Op _  -> raise Unsupported_feature
 
     let rec expr env e =
