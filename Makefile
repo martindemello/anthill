@@ -1,14 +1,14 @@
 all: test
 
 test:
-	ocamlbuild test.native
+	ocamlbuild -use-ocamlfind test.native
 
 native:
-	ocamlbuild varix.native
+	ocamlbuild -use-ocamlfind varix.native
 	cp -L varix.native varix
 
 profile:
-	ocamlbuild varix.p.native
+	ocamlbuild -use-ocamlfind varix.p.native
 
 clean:
 	ocamlbuild -clean

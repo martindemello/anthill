@@ -16,7 +16,7 @@ let test_pattern env str =
     end
   | Error m -> printf "%s\n" m
 
-let _ =
+lwt () =
   let root = Trie.load_from_text_file "csw.lower" in
   let env = { Env.dict = root; op = Anagram } in
   Repl.repl env

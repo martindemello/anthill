@@ -1,2 +1,4 @@
-true: package(core),package(sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,mparser,ledit_lib)
+true: package(core),package(sexplib.syntax,bin_prot.syntax,comparelib.syntax,fieldslib.syntax,variantslib.syntax,mparser)
 true: thread,debug
+
+<repl.*> or <test.*>: package(lwt.syntax,lambda-term), syntax(camlp4o)
