@@ -45,6 +45,7 @@ let _pattern trie prefix trail =
         match c with
         | Dot -> Trie.foreach_child node next_step
         | Star -> begin
+          follow node cs prefix;
           Trie.foreach_child node next_step;
           Trie.foreach_child node (fun c child -> follow child trail (c :: prefix))
           end
