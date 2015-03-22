@@ -10,7 +10,7 @@ type bag = {
 }
 
 let empty () = {
-  letters = Array.create 26 0;
+  letters = Array.make 26 0;
   blanks = 0;
   n_letters = 0;
   star = false
