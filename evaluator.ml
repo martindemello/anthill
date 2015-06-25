@@ -13,6 +13,7 @@ module Make =
     (* wordlist generation *)
     let unary dict op trail = match op with
       | Anagram -> E.anagram dict trail ~all:false ~multi:false
+      | Multi -> E.anagram dict trail ~all:false ~multi:true
       | Build -> E.anagram dict trail ~all:true ~multi:false
       | Pattern -> E.pattern dict trail
       | Fn s -> Wordset.of_list [s]

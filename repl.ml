@@ -29,6 +29,7 @@ end
 
 let prompt_of_op = function
   | Anagram -> "anagram > "
+  | Multi -> "multi > "
   | Pattern -> "pattern > "
   | Build -> "build > "
   | Fn s -> s ^ " > "

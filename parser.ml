@@ -1,6 +1,7 @@
-open MParser
 open Types
 open Utility
+open MParser
+open MParser_PCRE
 open Tokens
 
 module String = Core.Std.String
@@ -15,6 +16,7 @@ let make_star l = Star
 let make_uop s = 
   match (String.lowercase s) with
   | "a" | "anagram" -> Anagram
+  | "m" | "multi" -> Multi
   | "p" | "pattern" -> Pattern
   | "b" | "build" -> Build
   | s -> Fn s
