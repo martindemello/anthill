@@ -13,7 +13,7 @@ let make_lletter l = Letter (from_lower l)
 let make_dot l = Dot
 let make_star l = Star
 
-let make_uop s = 
+let make_uop s =
   match (String.lowercase s) with
   | "a" | "anagram" -> Anagram
   | "m" | "multi" -> Multi
@@ -36,6 +36,7 @@ let make_unary s t = Uop (s, t)
 let make_expr e = Expr e
 let make_assign v e = Assign (v, e)
 let make_implicit_expr s = Tiles s
+let make_command s = Command (make_uop s)
 
 let group = squares (many1 alphanum)
 
@@ -83,9 +84,16 @@ let lhs : (string, unit) parser = (varname << spaces << char '=' << spaces)
 
 let assign : (line, unit) parser = pipe2 lhs expr make_assign
 
+let command : (string, unit) parser =
+        (char ';' >> name)
+    <|> (letter |>> String.of_char)
+
+let command_expr : (line, unit) parser = (command << eof) |>> make_command
+
 let line : (line, unit) parser =
       (attempt assign)
   <|> (attempt line_expr)
+  <|> (attempt command_expr)
   <|> (rack |>> make_implicit_expr)
 
 let input : (line, unit) parser = line << eof

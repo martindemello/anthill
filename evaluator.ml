@@ -36,6 +36,7 @@ module Make =
 
     let eval env line =
       match line with
+      | Command c -> Wordset.of_list []
       | Expr e -> expr env e
       | Assign (v, e) -> Wordset.of_list [v ^ " <-"]
       | Tiles trail -> expr env (Uop (env.op, trail))

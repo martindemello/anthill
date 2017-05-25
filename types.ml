@@ -28,4 +28,8 @@ type expr =
   | Uop of uop * tiles
   | Bop of bop * expr * expr
 
-type line = Tiles of tiles | Expr of expr | Assign of string * expr
+type line =
+  | Tiles of tiles
+  | Expr of expr
+  | Assign of string * expr
+  | Command of uop
