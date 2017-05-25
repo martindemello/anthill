@@ -1,4 +1,4 @@
-open Core.Std
+open Core
 include Utility
 
 type t = int list

@@ -1,5 +1,5 @@
 open Utility
-open Core.Std
+open Core
 open Engine
 include Trie
 include Types

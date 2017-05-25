@@ -1,4 +1,4 @@
-open Core.Std
+open Core
 
 module S = Set.Make(String)
 

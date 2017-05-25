@@ -1,5 +1,5 @@
 open Printf
-open Core.Std
+open Core
 open Types
 
 (* trie node *)

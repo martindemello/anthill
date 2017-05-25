@@ -4,8 +4,8 @@ open MParser
 open MParser_PCRE
 open Tokens
 
-module String = Core.Std.String
-module Result = Core.Std.Result
+module String = Core.String
+module Result = Core.Result
 
 let make_group l = Group (Group.of_char_list l)
 let make_uletter l = Letter (from_upper l)

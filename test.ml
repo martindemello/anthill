@@ -1,5 +1,5 @@
 open Utility
-open Core.Std
+open Core
 open Types
 open Trie_search
 
