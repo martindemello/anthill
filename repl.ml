@@ -38,7 +38,11 @@ let print_instructions term = display term "
   Anagram: a letters
   Pattern: p letters
   Build: b letters
-  Use . for a blank and * for any number of blanks
+  Wildcards: . = blank, * = 0+ blanks, [abc] = any of a,b,c
+  Set operations: & = and, | = or, - = diff
+  Use () to combine expressions when using set operations.
+  Example: eights in retinas? not starting with a vowel
+    (a retinas.) - (p [aeiou]*)
 
   Hit Ctrl-D to exit
   ------------------------------------------------
