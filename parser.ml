@@ -109,14 +109,13 @@ let input : (line, unit) parser = line << eof
 
 (* exported parsing functions *)
 
-let parse s = match parse_string input s () with
-| MParser.Success line -> Result.Ok line
-| MParser.Failed (m, e) -> Result.Error m
+let make_parser fn =
+  let parse s = match parse_string fn s () with
+  | MParser.Success out -> Result.Ok out
+  | MParser.Failed (m, e) -> Result.Error m
+  in
+  parse
 
-let parse_rack s = match parse_string rack s () with
-| MParser.Success out -> Result.Ok out
-| MParser.Failed (m, e) -> Result.Error m
-
-let parse_int s = match parse_string integer s () with
-| MParser.Success out -> Result.Ok out
-| MParser.Failed (m, e) -> Result.Error m
+let parse = make_parser input
+let parse_rack = make_parser rack
+let parse_int = make_parser integer

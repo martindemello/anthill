@@ -1,4 +1,4 @@
-true: package(core),package(mparser,mparser.pcre)
+true: package(core),package(mparser,mparser.pcre),package(rresult)
 true: thread,debug
 
 <repl.*> or <test.*>: package(lwt.syntax,lambda-term), syntax(camlp4o)

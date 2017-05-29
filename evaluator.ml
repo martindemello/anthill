@@ -11,32 +11,44 @@ module Make =
   struct
     open Env
 
-    let trail args =
+    (* argument conversion *)
+    let single_arg args =
       match args with
-      | [arg] -> begin
-         match Parser.parse_rack arg with
-           | Result.Ok trail -> trail
-           | _ -> raise (Invalid_argument "none")
-       end
-      | _ -> raise (Invalid_argument "none")
+      | [arg] -> Result.Ok arg
+      | _ -> Result.Error "Expected: Single argument"
+
+    let trail args =
+      let open Rresult.R in
+      (single_arg args >>= Parser.parse_rack) |> get_ok
 
     let length_pattern args =
-      match args with
-      | [arg] -> begin
-         match Parser.parse_int arg with
-           | Result.Ok n -> List.init n (fun _ -> Dot)
-           | _ -> raise (Invalid_argument "none")
-       end
-      | _ -> raise (Invalid_argument "none")
+      let open Rresult.R in
+      let n = (single_arg args >>= Parser.parse_int) |> get_ok in
+      List.init n (fun _ -> Dot)
 
+    (* prefix functions *)
+    let fn_anagram dict args = 
+      E.anagram dict (trail args) ~all:false ~multi:false
+
+    let fn_multi dict args = 
+      E.anagram dict (trail args) ~all:false ~multi:true
+
+    let fn_build dict args = 
+      E.anagram dict (trail args) ~all:true ~multi:false
+
+    let fn_pattern dict args = 
+      E.pattern dict (trail args)
+
+    let fn_length dict args = 
+      E.pattern dict (length_pattern args)
 
     (* wordlist generation *)
     let prefix dict op args = match op with
-      | Anagram -> E.anagram dict (trail args) ~all:false ~multi:false
-      | Multi -> E.anagram dict (trail args) ~all:false ~multi:true
-      | Build -> E.anagram dict (trail args) ~all:true ~multi:false
-      | Pattern -> E.pattern dict (trail args)
-      | Length -> E.pattern dict (length_pattern args)
+      | Anagram -> fn_anagram dict args
+      | Multi -> fn_multi dict args
+      | Build -> fn_build dict args
+      | Pattern -> fn_pattern dict args
+      | Length -> fn_length dict args
       | Fn s -> Wordset.of_list [s]
 
     (* binary functions *)
