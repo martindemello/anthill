@@ -4,6 +4,8 @@ type tile = Letter of int | Group of group | Dot | Star
 
 type tiles = tile list
 
+type args = string list
+
 let char_of_tile n = match n with
 | Letter c -> Char.chr (c + 97)
 | Dot -> '.'
@@ -19,17 +21,17 @@ exception Unsupported_feature
 
 (* parser and evaluator *)
 
-type uop = Anagram | Build | Pattern | Multi | Fn of string;;
+type fn = Anagram | Build | Pattern | Multi | Fn of string;;
 type bop = Union | Inter | Diff | Op of string;;
 
 type expr =
   | Words of Wordset.t
   | Var of string
-  | Uop of uop * tiles
+  | Fun of fn * args
   | Bop of bop * expr * expr
 
 type line =
-  | Tiles of tiles
+  | Tiles of string
   | Expr of expr
   | Assign of string * expr
-  | Command of uop
+  | Command of fn

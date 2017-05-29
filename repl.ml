@@ -50,7 +50,7 @@ let print_instructions term = display term "
 
 (* Override the active operation when an explicit unary command is entered *)
 let op env expr = match expr with
-| Expr (Uop (o, _)) -> o
+| Expr (Fun (o, _)) -> o
 | Command (Fn s) -> env.Env.op
 | Command o -> o
 | _ -> env.Env.op
