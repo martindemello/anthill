@@ -13,12 +13,22 @@ module Make =
 
     let trail args =
       match args with
-      | arg :: _ -> begin
+      | [arg] -> begin
          match Parser.parse_rack arg with
            | Result.Ok trail -> trail
            | _ -> raise (Invalid_argument "none")
        end
       | _ -> raise (Invalid_argument "none")
+
+    let length_pattern args =
+      match args with
+      | [arg] -> begin
+         match Parser.parse_int arg with
+           | Result.Ok n -> List.init n (fun _ -> Dot)
+           | _ -> raise (Invalid_argument "none")
+       end
+      | _ -> raise (Invalid_argument "none")
+
 
     (* wordlist generation *)
     let prefix dict op args = match op with
@@ -26,6 +36,7 @@ module Make =
       | Multi -> E.anagram dict (trail args) ~all:false ~multi:true
       | Build -> E.anagram dict (trail args) ~all:true ~multi:false
       | Pattern -> E.pattern dict (trail args)
+      | Length -> E.pattern dict (length_pattern args)
       | Fn s -> Wordset.of_list [s]
 
     (* binary functions *)

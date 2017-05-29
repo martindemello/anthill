@@ -19,6 +19,7 @@ let make_fn s =
   | "m" | "multi" -> Multi
   | "p" | "pattern" -> Pattern
   | "b" | "build" -> Build
+  | "l" | "length" -> Length
   | s -> Fn s
 
 let make_bop s =
@@ -113,5 +114,9 @@ let parse s = match parse_string input s () with
 | MParser.Failed (m, e) -> Result.Error m
 
 let parse_rack s = match parse_string rack s () with
+| MParser.Success out -> Result.Ok out
+| MParser.Failed (m, e) -> Result.Error m
+
+let parse_int s = match parse_string integer s () with
 | MParser.Success out -> Result.Ok out
 | MParser.Failed (m, e) -> Result.Error m

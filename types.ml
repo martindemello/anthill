@@ -21,7 +21,14 @@ exception Unsupported_feature
 
 (* parser and evaluator *)
 
-type fn = Anagram | Build | Pattern | Multi | Fn of string;;
+type fn =
+  | Anagram
+  | Build
+  | Pattern
+  | Multi
+  | Length
+  | Fn of string;;
+
 type bop = Union | Inter | Diff | Op of string;;
 
 type expr =
