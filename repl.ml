@@ -33,7 +33,7 @@ let prompt_of_op = function
   | Pattern -> "pattern > "
   | Build -> "build > "
   | Fn s -> s ^ " > "
-  | Length -> "length > "
+  | _ -> "other > "
 
 let print_instructions term = display term "
   Anagram: a letters

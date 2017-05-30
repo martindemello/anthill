@@ -31,6 +31,8 @@ type fn =
   | Pattern
   | Multi
   | Length
+  | Above
+  | Below
   | Fn of string;;
 
 type bop = Union | Inter | Diff | Op of string;;

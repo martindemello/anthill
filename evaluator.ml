@@ -14,25 +14,30 @@ module Make =
 
     (* argument conversion *)
 
+    (* validate that list has only letters and dots *)
+    let validate_letter_dot cs =
+      List.for_all cs (fun c -> (Char.is_lowercase c) || (c = '.'))
+
     (* validate that list has only letters and exactly one dot *)
     let validate_fit cs =
-      (List.for_all cs (fun c -> (Char.is_lowercase c) || (c = '.')))
-      && ((List.count cs (fun c -> c = '.')) = 1)
+      validate_letter_dot cs && 
+      ((List.count cs (fun c -> c = '.')) = 1)
 
-    let expand_group dict f =
+    let expand_fit dict cs =
       let fn = function
           '.' -> Dot
         | c -> Letter (from_lower c)
       in
+      if validate_fit cs then
+        let pat = List.map cs fn in
+        let chars = E.fit dict pat in
+        Group (Group.of_char_list chars)
+      else
+        raise (Invalid_argument "<> group can only have letters and a single .")
+
+    let expand_group dict f =
       match f with
-        Fit cs -> begin
-          if validate_fit cs then
-            let pat = List.map cs fn in
-            let chars = E.fit dict pat in
-            Group (Group.of_char_list chars)
-          else
-            raise (Invalid_argument "<> group can only have letters and a single .")
-        end
+        Fit cs -> expand_fit dict cs
 
     let expand_rack dict ts =
       let expand t = match t with
@@ -57,6 +62,23 @@ module Make =
       let n = (single_arg args >>= Parser.parse_int) |> get_ok in
       List.init n (fun _ -> Dot)
 
+    let overlap_pattern pos dict arg =
+      let chars = String.to_list arg in
+      let pat c = match pos with
+          `Above -> ['.'; c]
+        | `Below -> [c; '.']
+      in
+      let exp c = match c with
+        | '.' -> Dot
+        | _ -> expand_fit dict (pat c)
+      in
+      let groups = List.map ~f:exp chars in
+      groups
+
+    let above_pattern = overlap_pattern `Above
+
+    let below_pattern = overlap_pattern `Below
+
     (* prefix functions *)
     let fn_anagram dict args =
       E.anagram dict (trail dict args) ~all:false ~multi:false
@@ -73,8 +95,11 @@ module Make =
     let fn_length dict args =
       E.pattern dict (length_pattern args)
 
-    let fn_fit dict args =
-      E.fit dict (trail dict args)
+    let fn_above dict args =
+      E.pattern dict (above_pattern dict (List.hd_exn args))
+
+    let fn_below dict args =
+      E.pattern dict (below_pattern dict (List.hd_exn args))
 
     (* wordlist generation *)
     let prefix dict op args = match op with
@@ -83,6 +108,8 @@ module Make =
       | Build -> fn_build dict args
       | Pattern -> fn_pattern dict args
       | Length -> fn_length dict args
+      | Above -> fn_above dict args
+      | Below -> fn_below dict args
       | Fn s -> Wordset.of_list [s]
 
     (* binary functions *)

@@ -21,6 +21,8 @@ let make_fn s =
   | "p" | "pattern" -> Pattern
   | "b" | "build" -> Build
   | "l" | "length" -> Length
+  | "ab" | "above" -> Above
+  | "be" | "below" -> Below
   | s -> Fn s
 
 let make_bop s =
