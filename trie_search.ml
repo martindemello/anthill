@@ -32,7 +32,7 @@ let collecting traversal =
   let retval = ref [] in
   let add_word = function None -> () | Some s -> retval := s :: !retval in
   traversal add_word;
-  Wordset.of_list !retval
+  !retval
 
 (* follow a 'trail' of characters or wildcards starting from a given prefix *)
 let _pattern trie prefix trail =
@@ -57,7 +57,34 @@ let _pattern trie prefix trail =
       traverse node prefix cs
     in
       traverse trie prefix trail
-  in collecting traversal
+  in collecting traversal |> Wordset.of_list
+;;
+
+(* find all possibilities for a single wildcard *)
+let _fit trie prefix trail =
+  let traversal add_word =
+    let rec traverse node prefix trail =
+      match trail with
+      | [] -> ();
+      | c :: cs -> begin
+        let next_step add c child = match add with
+          | true -> follow child cs (c :: prefix)
+          | false -> follow child cs prefix
+        in
+        match c with
+        | Dot -> Trie.foreach_child node (next_step true)
+        | Letter i -> Trie.with_child node i (next_step false)
+        | _ -> raise Unsupported_feature
+      end
+    and follow node cs prefix =
+      if (List.is_empty cs && node.eow) then add_word (word_of prefix);
+      traverse node prefix cs
+    in
+      traverse trie prefix trail
+  in
+  let ws = collecting traversal in
+  let ws = List.filter ws (fun s -> String.length s > 0) in
+  List.map ws (fun s -> s.[0])
 ;;
 
 (* Build all possible words from a bag and a trie *
@@ -93,7 +120,7 @@ let _anagram trie prefix trail ~all ~multi =
         end
     in
     traverse trie prefix;
-  in collecting traversal
+  in collecting traversal |> Wordset.of_list
 ;;
 
 let expand_groups trail =
@@ -108,11 +135,12 @@ let make_anags trie trail ~multi ~all =
   Wordset.union_list (
     List.map trails (fun trail -> _anagram trie [] trail ~multi ~all))
 
-
 module TrieEngine = struct
   type dict = Trie.t
 
   let pattern trie trail = _pattern trie [] trail
+
+  let fit trie trail = _fit trie [] trail
 
   let anagram trie trail ~multi ~all =
     make_anags trie trail ~multi ~all

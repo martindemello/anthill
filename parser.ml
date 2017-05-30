@@ -7,11 +7,12 @@ open Tokens
 module String = Core.String
 module Result = Core.Result
 
-let make_group l = Group (Group.of_char_list l)
-let make_uletter l = Letter (from_upper l)
-let make_lletter l = Letter (from_lower l)
-let make_dot l = Dot
-let make_star l = Star
+let make_group l = Final (Group (Group.of_char_list l))
+let make_uletter l = Final (Letter (from_upper l))
+let make_lletter l = Final (Letter (from_lower l))
+let make_dot l = Final Dot
+let make_star l = Final Star
+let make_fit l = Expand (Fit l)
 
 let make_fn s =
   match (String.lowercase s) with
@@ -42,19 +43,21 @@ let make_command s = Command (make_fn s)
 (* parse arguments to anagram/pattern *)
 
 let group = squares (many1 alphanum)
+let fit = brackets (many1 (alphanum <|> dot))
 
-let tile : (tile, unit) parser = (
+let tile : (input_tile, unit) parser = (
       (group |>> make_group)
+  <|> (fit |>> make_fit)
   <|> (dot |>> make_dot)
   <|> (char '*' |>> make_star)
   <|> (uppercase |>> make_uletter)
   <|> (lowercase |>> make_lletter))
 
-let rack : (tiles, unit) parser = many1 tile
+let rack : (input_tile list, unit) parser = many1 tile
 
 (* parse expressions *)
 
-let arg_char : (char, unit) parser = alphanum <|> any_of ".*$_[]"
+let arg_char : (char, unit) parser = alphanum <|> any_of ".*$_[]<>"
 let arg : (string, unit) parser = many1_chars arg_char
 let args : (string list, unit) parser = sep_by arg spaces1
 

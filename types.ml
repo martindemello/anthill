@@ -4,6 +4,10 @@ type tile = Letter of int | Group of group | Dot | Star
 
 type tiles = tile list
 
+type input_group = Fit of char list
+
+type input_tile = Final of tile | Expand of input_group
+
 type args = string list
 
 let char_of_tile n = match n with

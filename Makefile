@@ -1,7 +1,7 @@
 all: test
 
 test:
-	ocamlbuild -use-ocamlfind test.native
+	ocamlbuild -cflag -g -use-ocamlfind test.native
 
 native:
 	ocamlbuild -use-ocamlfind varix.native
