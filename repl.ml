@@ -57,19 +57,14 @@ let op env expr = match expr with
 | _ -> env.Env.op
 
 let display_result term env expr ws =
-  let ws = Wordset.to_list ws in
-  let wlist = match (op env expr) with
-  | Anagram -> sort_by caps_in ws
-  | Build -> sort_by String.length ws
-  | _ -> ws
-  in
+  let wlist = Formatter.format_wordset env ws in
   Lwt_list.iter_s (display term) wlist
 
 let show_exc term x =
-  display term (Printf.sprintf "Exception: %s\n%!" (Exn.to_string x))
+  display term (Formatter.format_exception x)
 
 let display_error term e =
-  display term ("Error: " ^ e)
+  display term (Formatter.format_error e)
 
 let run env term str =
   let open Env in

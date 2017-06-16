@@ -16,30 +16,15 @@ let new_model dict = {
 
 let utf8 s = Glib.Convert.convert s "UTF-8" "ISO-8859-1"
 
-let display env ws =
-  let ws = Wordset.to_list ws in
-  let wlist = match env.Env.op with
-  | Anagram -> sort_by caps_in ws
-  | Build -> sort_by String.length ws
-  | _ -> ws
-  in
-  String.concat ~sep:"\n" wlist
-
-let display_error e =
-  "Error: " ^ e
-
-let display_exception e =
-  "Exception: " ^ (Exn.to_string e)
-  
-
 let eval env str =
   let open Env in
+  let open Formatter in
   try
     match Parser.parse str with
-    | Ok expr -> display env (Eval.eval env expr)
-    | Error m -> display_error m
+    | Ok expr -> unlines @@ format_wordset env (Eval.eval env expr)
+    | Error m -> format_error m
   with
-  | x -> display_exception x
+  | x -> format_exception x
 
 let make_cell_view ~column ~title ~opts =
   let renderer = GTree.cell_renderer_text opts in
