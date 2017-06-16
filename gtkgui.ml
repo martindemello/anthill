@@ -6,11 +6,11 @@ open Utility
 
 type model = {
   env: Env.env;
-  inputs : string list
+  history : string list
 }
 
 let new_model dict = {
-  inputs = ["a retinas"; "p can.."];
+  history = ["a retinas"; "p can.."];
   env = { Env.dict = dict; op = Anagram }
 }
 
@@ -36,9 +36,8 @@ let make_cell_view ~column ~title ~opts =
        renderer#set_properties [ `TEXT (utf8 str) ]);
   col
 
-class input_widget ~model ~output ?packing ?show () =
-  let scrolled_win =
-    GBin.scrolled_window ?packing
+class history_widget ~model ~output ?packing ?show () =
+  let scrolled_win = GBin.scrolled_window ?packing
       ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
   in
   let cols = new GTree.column_list in
@@ -57,37 +56,70 @@ class input_widget ~model ~output ?packing ?show () =
           let row = list_model#append () in
           list_model#set ~row ~column:val_col v;
         )
-        !model.inputs;
+        !model.history;
       ignore @@ view#append_column val_col_view;
       ignore @@ view#connect#after#row_activated ~callback: begin
         fun path vcol ->
           let it : Gtk.tree_iter = list_model#get_iter path in
           let v = list_model#get ~row:it ~column:val_col in
           let out = eval !model.env v in
-          output#buffer#set_text out
+          output#set_text out
       end
   end
 
+class input_widget ~model ~history ~output ?packing ?show () =
+  let frame = GBin.frame ~border_width:3 ~shadow_type:`IN ?packing () in
+  let input = GText.view ~packing:frame#add ~editable:true () in
+  object(self)
+    inherit GObj.widget_full frame#as_widget
+
+    initializer
+      input#set_wrap_mode `CHAR;
+      ignore @@ input#event#connect#key_press
+        ~callback:(fun ev -> self#handle_key_press ev)
+
+    method handle_key_press ev =
+      let key = GdkEvent.Key.keyval ev in
+      if key = GdkKeysyms._Return then
+        let t = input#buffer#get_text () in
+        let out = eval !model.env t in
+        output#set_text out;
+        true
+      else
+        false
+  end
+
+class output_widget ?packing ?show () =
+  let scrolled_win = GBin.scrolled_window ?packing
+      ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
+  in
+  let output = GText.view ~packing:scrolled_win#add ~editable:false () in
+  object(self)
+    inherit GObj.widget_full scrolled_win#as_widget
+
+    method set_text text =
+      output#buffer#set_text text
+  end
+
+
 let () =
-  let dict = Trie.load_from_text_file "csw15.lower" in
-  let model = ref (new_model dict) in
   let _locale = GMain.init ~setlocale:true () in
   let w = GWindow.window () in
   ignore @@ w#connect#destroy ~callback:GMain.quit;
+
   let vbox = GPack.vbox ~packing:w#add () in
   let hbox = GPack.hbox ~packing:vbox#add () in
   let vb1 = GPack.vbox ~packing:hbox#add () in
   let vb2 = GPack.vbox ~packing:hbox#add () in
-  let scroll = GBin.scrolled_window
-      ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC
-      ~packing:vb2#add () in
-  let output = GText.view ~packing:scroll#add () in
-  let _input = new input_widget ~packing:vb1#add ~model ~output () in
 
-  (* set text *)
-  output#buffer#set_text "multi-\nline\ntext";
+  let dict = Trie.load_from_text_file "csw15.lower" in
+  let model = ref (new_model dict) in
+  let output = new output_widget ~packing:vb2#add () in
+  let history = new history_widget ~packing:vb1#add ~model ~output () in
+  let _input = new input_widget ~model ~history ~output ~packing:(vb1#pack ~expand:false) () in
 
   let quit = GButton.button ~label:"Quit" ~packing:vbox#pack () in
   ignore @@ quit#connect#clicked ~callback:GMain.quit;
+
   w#show ();
   GMain.main ()
