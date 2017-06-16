@@ -1,5 +1,8 @@
 all: test
 
+gui:
+	ocamlbuild -cflag -g -use-ocamlfind gtkgui.native
+
 test:
 	ocamlbuild -cflag -g -use-ocamlfind test.native
 
