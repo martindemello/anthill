@@ -79,12 +79,12 @@ let run env term str =
   let open Env in
   try
     match Parser.parse str with
-    | Result.Ok expr -> begin
+    | Ok expr -> begin
         let l = Eval.eval env expr in
         env.op <- op env expr;
         display_result term env expr l
       end
-    | Result.Error m -> display_error term m
+    | Error m -> display_error term m
   with
   | x -> show_exc term x
 

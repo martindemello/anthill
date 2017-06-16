@@ -48,8 +48,8 @@ module Make =
 
     let single_arg args =
       match args with
-      | [arg] -> Result.Ok arg
-      | _ -> Result.Error "Expected: Single argument"
+      | [arg] -> Ok arg
+      | _ -> Error "Expected: Single argument"
 
     let trail dict args =
       let open Rresult.R in

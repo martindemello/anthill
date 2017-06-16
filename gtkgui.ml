@@ -40,8 +40,8 @@ let eval env str =
   let open Env in
   try
     match Parser.parse str with
-    | Result.Ok expr -> display env (Eval.eval env expr)
-    | Result.Error m -> display_error m
+    | Ok expr -> display env (Eval.eval env expr)
+    | Error m -> display_error m
   with
   | x -> display_exception x
 

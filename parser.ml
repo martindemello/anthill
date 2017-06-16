@@ -5,7 +5,6 @@ open MParser_PCRE
 open Tokens
 
 module String = Core.String
-module Result = Core.Result
 
 let make_group l = Final (Group (Group.of_char_list l))
 let make_uletter l = Final (Letter (from_upper l))
@@ -116,8 +115,8 @@ let input : (line, unit) parser = line << eof
 
 let make_parser fn =
   let parse s = match parse_string fn s () with
-  | MParser.Success out -> Result.Ok out
-  | MParser.Failed (m, e) -> Result.Error m
+  | MParser.Success out -> Ok out
+  | MParser.Failed (m, e) -> Error m
   in
   parse
 
