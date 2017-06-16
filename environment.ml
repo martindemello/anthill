@@ -15,4 +15,3 @@ module Make (Dict : sig type t end) = struct
     mutable op : Types.fn
   }
 end
-

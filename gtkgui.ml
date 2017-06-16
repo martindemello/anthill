@@ -1,12 +1,8 @@
 open StdLabels
 open Core
 open Types
-open Trie_search
+open Top
 open Utility
-
-module Env = Environment.Make (Trie)
-
-module Eval = Evaluator.Make (Env) (TrieEngine)
 
 type model = {
   env: Env.env;

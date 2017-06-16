@@ -1,11 +1,7 @@
 open Utility
 open Core
 open Types
-open Trie_search
-
-module Env = Environment.Make (Trie)
-
-module Eval = Evaluator.Make (Env) (TrieEngine)
+open Top
 
 let test_pattern env str =
   match Parser.parse str with

@@ -1,12 +1,8 @@
 open Types
 open Core
-open Trie_search
 open Utility
 open Lwt
-
-module Env = Environment.Make (Trie)
-
-module Eval = Evaluator.Make (Env) (TrieEngine)
+open Top
 
 let display term text =
   let open LTerm_text in
