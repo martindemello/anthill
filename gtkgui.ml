@@ -21,7 +21,12 @@ let eval env str =
   let open Formatter in
   try
     match Parser.parse str with
-    | Ok expr -> unlines @@ format_wordset env (Eval.eval env expr)
+    | Ok expr -> begin
+        let op = Librepl.op_of_expr env expr in
+        let e = {env with op} in
+        let out = Eval.eval env expr in
+        unlines @@ format_wordset e out
+      end
     | Error m -> format_error m
   with
   | x -> format_exception x

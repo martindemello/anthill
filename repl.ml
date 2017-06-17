@@ -23,14 +23,6 @@ class read_line ~term ~history ~prompt = object(self)
     self#set_prompt (make_prompt prompt)
 end
 
-let prompt_of_op = function
-  | Anagram -> "anagram > "
-  | Multi -> "multi > "
-  | Pattern -> "pattern > "
-  | Build -> "build > "
-  | Fn s -> s ^ " > "
-  | _ -> "other > "
-
 let print_instructions term = display term "
   Anagram: a letters
   Pattern: p letters
@@ -44,17 +36,6 @@ let print_instructions term = display term "
   Hit Ctrl-D to exit
   ------------------------------------------------
   "
-
-(* Override the active operation when an explicit unary command is entered *)
-let op env expr = match expr with
-| Expr (Fun (o, _)) -> begin
-    match o with
-    | Anagram | Pattern | Build -> o
-    | _ -> env.Env.op
-  end
-| Command (Fn s) -> env.Env.op
-| Command o -> o
-| _ -> env.Env.op
 
 let display_result term env expr ws =
   let wlist = Formatter.format_wordset env ws in
@@ -72,7 +53,7 @@ let run env term str =
     match Parser.parse str with
     | Ok expr -> begin
         let l = Eval.eval env expr in
-        env.op <- op env expr;
+        env.op <- Librepl.op_of_expr env expr;
         display_result term env expr l
       end
     | Error m -> display_error term m
@@ -82,7 +63,7 @@ let run env term str =
 let rec loop term history env =
   match_lwt
     try_lwt
-      let prompt = prompt_of_op env.Env.op in
+      let prompt = Librepl.prompt_of_op env.Env.op in
       let rl = new read_line ~term ~history:(LTerm_history.contents history) ~prompt in
       lwt command = rl#run in
       return (Some command)
