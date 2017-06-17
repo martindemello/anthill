@@ -37,7 +37,8 @@ let make_cell_view ~column ~title ~opts =
   col
 
 class history_widget ~model ~output ?packing ?show () =
-  let scrolled_win = GBin.scrolled_window ?packing
+  let frame = GBin.frame ~border_width:3 ~shadow_type:`IN ?packing () in
+  let scrolled_win = GBin.scrolled_window ~packing:frame#add
       ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
   in
   let cols = new GTree.column_list in
@@ -49,7 +50,7 @@ class history_widget ~model ~output ?packing ?show () =
   let val_col_view = make_view val_col in
   let view = GTree.view ~model:list_model ~packing:scrolled_win#add () in
   object(self)
-    inherit GObj.widget_full scrolled_win#as_widget
+    inherit GObj.widget_full frame#as_widget
 
     initializer
       self#update;
@@ -97,12 +98,13 @@ class input_widget ~model ~history ~output ?packing ?show () =
   end
 
 class output_widget ?packing ?show () =
-  let scrolled_win = GBin.scrolled_window ?packing
+  let frame = GBin.frame ~border_width:3 ~shadow_type:`IN ?packing () in
+  let scrolled_win = GBin.scrolled_window ~packing:frame#add
       ~hpolicy:`AUTOMATIC ~vpolicy:`AUTOMATIC ()
   in
   let output = GText.view ~packing:scrolled_win#add ~editable:false () in
   object(self)
-    inherit GObj.widget_full scrolled_win#as_widget
+    inherit GObj.widget_full frame#as_widget
 
     method set_text text =
       output#buffer#set_text text
