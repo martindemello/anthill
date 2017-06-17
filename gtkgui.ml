@@ -10,7 +10,7 @@ type model = {
 }
 
 let new_model dict = {
-  history = ["a retinas"; "p can.."];
+  history = [];
   env = { Env.dict = dict; op = Anagram }
 }
 
@@ -52,11 +52,7 @@ class history_widget ~model ~output ?packing ?show () =
     inherit GObj.widget_full scrolled_win#as_widget
 
     initializer
-      List.iter ~f:(fun v ->
-          let row = list_model#append () in
-          list_model#set ~row ~column:val_col v;
-        )
-        !model.history;
+      self#update;
       ignore @@ view#append_column val_col_view;
       ignore @@ view#connect#after#row_activated ~callback: begin
         fun path vcol ->
@@ -65,6 +61,14 @@ class history_widget ~model ~output ?packing ?show () =
           let out = eval !model.env v in
           output#set_text out
       end
+
+    method update =
+      list_model#clear ();
+      List.iter ~f:(fun v ->
+          let row = list_model#append () in
+          list_model#set ~row ~column:val_col v;
+        )
+        (List.rev !model.history)
   end
 
 class input_widget ~model ~history ~output ?packing ?show () =
@@ -84,6 +88,9 @@ class input_widget ~model ~history ~output ?packing ?show () =
         let t = input#buffer#get_text () in
         let out = eval !model.env t in
         output#set_text out;
+        model := { !model with history = t :: !model.history };
+        history#update;
+        input#buffer#set_text "";
         true
       else
         false
