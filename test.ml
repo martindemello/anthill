@@ -14,10 +14,10 @@ let test_pattern env str =
 
 let test_from_cmdline =
   let root = Trie.load_from_text_file "csw15.lower" in
-  let env = { Env.dict = root; op = Pattern } in
-  test_pattern env "<f.t>."
+  let env = ref { Env.dict = root; op = Pattern } in
+  test_pattern !env "<f.t>."
 
 lwt () =
   let root = Trie.load_from_text_file "csw15.lower" in
-  let env = { Env.dict = root; op = Anagram } in
+  let env = ref { Env.dict = root; op = Anagram } in
   Repl.repl env

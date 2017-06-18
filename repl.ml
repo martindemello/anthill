@@ -52,9 +52,9 @@ let run env term str =
   try
     match Parser.parse str with
     | Ok expr -> begin
-        let l = Eval.eval env expr in
-        env.op <- Librepl.op_of_expr env expr;
-        display_result term env expr l
+        let l = Eval.eval !env expr in
+        env := {!env with op = Librepl.op_of_expr !env expr};
+        display_result term !env expr l
       end
     | Error m -> display_error term m
   with
@@ -63,7 +63,7 @@ let run env term str =
 let rec loop term history env =
   match_lwt
     try_lwt
-      let prompt = Librepl.prompt_of_op env.Env.op in
+      let prompt = Librepl.prompt_of_op !env.Env.op in
       let rl = new read_line ~term ~history:(LTerm_history.contents history) ~prompt in
       lwt command = rl#run in
       return (Some command)

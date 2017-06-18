@@ -3,7 +3,7 @@ module type ENV = sig
 
   type env = {
     dict : dict;
-    mutable op : Types.fn
+    op : Types.fn
   }
 end
 
