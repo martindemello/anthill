@@ -11,7 +11,7 @@ type model = {
 
 let new_model dict = {
   history = [];
-  env = { Env.dict = dict; op = Anagram }
+  env = Librepl.new_env dict
 }
 
 let utf8 s = Glib.Convert.convert s "UTF-8" "ISO-8859-1"

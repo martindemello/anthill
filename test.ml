@@ -13,11 +13,11 @@ let test_pattern env str =
   | Error m -> printf "%s\n" m
 
 let test_from_cmdline =
-  let root = Trie.load_from_text_file "csw15.lower" in
-  let env = ref { Env.dict = root; op = Pattern } in
-  test_pattern !env "<f.t>."
+  let dict = Trie.load_from_text_file "csw15.lower" in
+  let env = {(Librepl.new_env dict) with Env.op = Pattern } in
+  test_pattern env "<f.t>."
 
 lwt () =
-  let root = Trie.load_from_text_file "csw15.lower" in
-  let env = ref { Env.dict = root; op = Anagram } in
+  let dict = Trie.load_from_text_file "csw15.lower" in
+  let env = ref (Librepl.new_env dict) in
   Repl.repl env

@@ -1,6 +1,9 @@
 open Types
 open Top
 
+let new_env dict =
+  { Env.dict = dict; op = Anagram; vars = Vars.empty }
+
 (* Override the active operation when an explicit unary command is entered *)
 let op_of_expr env expr = match expr with
 | Expr (Fun (o, _)) -> begin
