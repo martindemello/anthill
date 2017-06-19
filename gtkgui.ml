@@ -24,12 +24,12 @@ let eval env str =
     | Ok expr -> begin
         let op = Librepl.op_of_expr env expr in
         let e = {env with op} in
-        let out = Eval.eval env expr in
-        unlines @@ format_wordset e out
+        let env', out = Eval.eval env expr in
+        env', unlines @@ format_wordset e out
       end
-    | Error m -> format_error m
+    | Error m -> env, format_error m
   with
-  | x -> format_exception x
+  | x -> env, format_exception x
 
 let make_cell_view ~column ~title ~opts =
   let renderer = GTree.cell_renderer_text opts in
@@ -64,7 +64,8 @@ class history_widget ~model ~output ?packing ?show () =
         fun path vcol ->
           let it : Gtk.tree_iter = list_model#get_iter path in
           let v = list_model#get ~row:it ~column:val_col in
-          let out = eval !model.env v in
+          let env', out = eval !model.env v in
+          model := {!model with env = env'};
           output#set_text out
       end
 
@@ -92,9 +93,9 @@ class input_widget ~model ~history ~output ?packing ?show () =
       let key = GdkEvent.Key.keyval ev in
       if key = GdkKeysyms._Return then
         let t = input#buffer#get_text () in
-        let out = eval !model.env t in
+        let env', out = eval !model.env t in
         output#set_text out;
-        model := { !model with history = t :: !model.history };
+        model := {history = t :: !model.history; env = env'};
         history#update;
         input#buffer#set_text "";
         true

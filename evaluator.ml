@@ -126,12 +126,16 @@ module Make =
       | Words w -> w
       | Fun (op, args) -> prefix env.dict op args
       | Bop (op, l, r) -> binary op (expr env l) (expr env r)
-      | Var v -> Wordset.of_list ["<- " ^ v]
+      | Var v -> Vars.get env.vars v
 
     let eval env line =
       match line with
-      | Command c -> Wordset.of_list []
-      | Expr e -> expr env e
-      | Assign (v, e) -> Wordset.of_list [v ^ " <-"]
-      | Tiles arg -> expr env (Fun (env.op, [arg]))
+      | Command c -> env, Wordset.of_list []
+      | Expr e -> env, expr env e
+      | Tiles arg -> env, expr env (Fun (env.op, [arg]))
+      | Assign (v, e) -> begin
+          let ws = expr env e in
+          let env' = {env with vars = (Vars.set env.vars v ws)} in
+          env', ws
+        end
   end

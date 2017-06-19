@@ -6,7 +6,7 @@ open Top
 let test_pattern env str =
   match Parser.parse str with
   | Ok line -> begin
-      let l = Eval.eval env line in
+      let _, l = Eval.eval env line in
       let l = Wordset.to_list l in
       List.iter l (fun w -> printf "%s\n" w)
     end

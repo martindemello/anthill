@@ -52,8 +52,8 @@ let run env term str =
   try
     match Parser.parse str with
     | Ok expr -> begin
-        let l = Eval.eval !env expr in
-        env := {!env with op = Librepl.op_of_expr !env expr};
+        let env', l = Eval.eval !env expr in
+        env := {env' with op = Librepl.op_of_expr env' expr};
         display_result term !env expr l
       end
     | Error m -> display_error term m
