@@ -7,11 +7,11 @@ test:
 	ocamlbuild -cflag -g -use-ocamlfind test.native
 
 native:
-	ocamlbuild -use-ocamlfind varix.native
-	cp -L varix.native varix
+	ocamlbuild -use-ocamlfind hex.native
+	cp -L hex.native hex
 
 profile:
-	ocamlbuild -use-ocamlfind varix.p.native
+	ocamlbuild -use-ocamlfind hex.p.native
 
 clean:
 	ocamlbuild -clean

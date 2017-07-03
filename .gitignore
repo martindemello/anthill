@@ -4,5 +4,5 @@ _build/*
 *.o
 *.cmx
 *.mlgi
-varix
+hex
 *.native
