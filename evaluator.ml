@@ -79,6 +79,7 @@ module Make =
 
     let below_pattern = overlap_pattern `Below
 
+
     (* prefix functions *)
     let fn_anagram dict args =
       E.anagram dict (trail dict args) ~all:false ~multi:false
@@ -101,6 +102,10 @@ module Make =
     let fn_below dict args =
       E.pattern dict (below_pattern dict (List.hd_exn args))
 
+    let fn_one_off dict args =
+      E.pattern dict (below_pattern dict (List.hd_exn args))
+
+
     (* wordlist generation *)
     let prefix dict op args = match op with
       | Anagram -> fn_anagram dict args
@@ -110,6 +115,7 @@ module Make =
       | Length -> fn_length dict args
       | Above -> fn_above dict args
       | Below -> fn_below dict args
+      | One_off -> fn_one_off dict args
       | Fn s -> Wordset.of_list [s]
 
     (* binary functions *)

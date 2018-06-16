@@ -33,6 +33,7 @@ type fn =
   | Length
   | Above
   | Below
+  | One_off
   | Fn of string;;
 
 type bop = Union | Inter | Diff | Op of string;;

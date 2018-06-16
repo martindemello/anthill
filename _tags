@@ -1,5 +1,5 @@
 true: package(core),package(mparser,mparser.pcre),package(rresult)
 true: thread,debug
 
-<repl.*> or <test.*>: package(lwt.syntax,lambda-term), syntax(camlp4o)
+<repl.*> or <test.*>: package(lambda-term, lwt_ppx)
 <gtkgui*>: package(lablgtk2, lablgtk2.auto-init)

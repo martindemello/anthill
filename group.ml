@@ -10,9 +10,9 @@ let t_of_sexp = List.t_of_sexp Sexplib.Conv.int_of_sexp
 
 let empty () = []
 
-let sort = List.sort ~cmp:Pervasives.compare
+let sort l = List.sort ~compare:Pervasives.compare l
 
-let uniq l = sort (List.dedup l)
+let uniq l = List.dedup_and_sort ~compare:Pervasives.compare l
 
 let of_char_list l =
   let rec readlist l g =

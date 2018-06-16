@@ -8,4 +8,4 @@ let get vs k = match Map.find vs k with
   | Some w -> w
   | None -> Wordset.empty
 
-let set vs k w = Map.add vs ~key:k ~data:w
+let set vs k w = Map.set vs ~key:k ~data:w

@@ -49,11 +49,11 @@ let foreach_child node f =
   match node.children with
   | None -> ()
   | Some ch ->
-    Array.iteri (fun i c ->
+    Array.iteri ch (fun i c ->
         match c with
         | None -> ()
         | Some child -> f i child
-      ) ch
+      )
 
 let for_child_in_group node group f =
   match node.children with

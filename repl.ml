@@ -61,27 +61,27 @@ let run env term str =
   | x -> show_exc term x
 
 let rec loop term history env =
-  match_lwt
-    try_lwt
+  match%lwt
+    try%lwt
       let prompt = Librepl.prompt_of_op !env.Env.op in
       let rl = new read_line ~term ~history:(LTerm_history.contents history) ~prompt in
-      lwt command = rl#run in
+      let%lwt command = rl#run in
       return (Some command)
     with Sys.Break ->
       return None
   with
   | Some command ->
-      lwt () = run env term command in
+      let%lwt () = run env term command in
       LTerm_history.add history command;
       loop term history env
   | None ->
       loop term history env
 
 let repl env =
-  lwt () = LTerm_inputrc.load () in
-  try_lwt
-    lwt term = Lazy.force LTerm.stdout in
-    lwt () = print_instructions term in
+  let%lwt () = LTerm_inputrc.load () in
+  try%lwt
+    let%lwt term = Lazy.force LTerm.stdout in
+    let%lwt () = print_instructions term in
     loop term (LTerm_history.create []) env
   with LTerm_read_line.Interrupt ->
     return ()
