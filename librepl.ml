@@ -11,7 +11,7 @@ let op_of_expr env expr = match expr with
     | Anagram | Pattern | Build -> o
     | _ -> env.Env.op
   end
-| Command (Fn s) -> env.Env.op
+| Command (Fn _) -> env.Env.op
 | Command o -> o
 | _ -> env.Env.op
 

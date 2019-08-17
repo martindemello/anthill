@@ -1,6 +1,4 @@
-open Printf
 open Core
-open Types
 
 (* trie node *)
 type node = {
@@ -16,7 +14,7 @@ let new_node eow = {
   children = None;
 }
 
-let new_child_array () = Array.create 26 None
+let new_child_array () = Array.create ~len:26 None
 
 let is_none n = phys_equal n None
 
@@ -42,14 +40,14 @@ let add node letters =
         | Some node -> n := node
     end
     in
-    String.iter letters add_letter;
+    String.iter letters ~f:add_letter;
     !n.eow <- true
 
 let foreach_child node f =
   match node.children with
   | None -> ()
   | Some ch ->
-    Array.iteri ch (fun i c ->
+    Array.iteri ch ~f:(fun i c ->
         match c with
         | None -> ()
         | Some child -> f i child
@@ -59,7 +57,7 @@ let for_child_in_group node group f =
   match node.children with
   | None -> ()
   | Some ch ->
-      List.iter group (fun i ->
+      List.iter group ~f:(fun i ->
         match ch.(i) with
         | None -> ()
         | Some child -> f i child
@@ -79,7 +77,7 @@ let char_of_int i = match Char.of_int (i + 97) with
   | None -> '#'
 
 let word_of prefix =
-  String.of_char_list (List.map (List.rev prefix) char_of_int)
+  String.of_char_list (List.map (List.rev prefix) ~f:char_of_int)
 
 let printall node prefix =
   let rec traverse node prefix =
@@ -92,7 +90,7 @@ let printall node prefix =
 
 let of_list words =
   let root = new_node false in
-  List.iter words (fun w -> add root w);
+  List.iter words ~f:(fun w -> add root w);
   root
 
 let load_from_text_file filename =

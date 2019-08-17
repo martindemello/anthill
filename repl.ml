@@ -1,8 +1,6 @@
-open Types
 open Core
-open Utility
-open Lwt
 open Top
+open Lwt
 
 let display term text =
   let open LTerm_text in
@@ -15,9 +13,9 @@ let make_prompt text =
 
 class read_line ~term ~history ~prompt = object(self)
   inherit LTerm_read_line.read_line ~history ()
-  inherit [Zed_utf8.t] LTerm_read_line.term term
+  inherit [Zed_string.t] LTerm_read_line.term term
 
-  method show_box = false
+  method! show_box = false
 
   initializer
     self#set_prompt (make_prompt prompt)
@@ -37,15 +35,15 @@ let print_instructions term = display term "
   ------------------------------------------------
   "
 
-let display_result term env expr ws =
-  let wlist = Formatter.format_wordset env ws in
+let display_result term env _expr ws =
+  let wlist = Output.format_wordset env ws in
   Lwt_list.iter_s (display term) wlist
 
 let show_exc term x =
-  display term (Formatter.format_exception x)
+  display term (Output.format_exception x)
 
 let display_error term e =
-  display term (Formatter.format_error e)
+  display term (Output.format_error e)
 
 let run env term str =
   let open Env in
@@ -71,7 +69,8 @@ let rec loop term history env =
       return None
   with
   | Some command ->
-      let%lwt () = run env term command in
+      let command_utf8= Zed_string.to_utf8 command in
+      let%lwt () = run env term command_utf8 in
       LTerm_history.add history command;
       loop term history env
   | None ->

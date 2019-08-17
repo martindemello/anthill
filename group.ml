@@ -4,15 +4,15 @@ include Utility
 type t = int list
 
 (* for Set.Elt *)
-let compare x y = List.compare Pervasives.compare x y
+let compare x y = List.compare Stdlib.compare x y
 let sexp_of_t = List.sexp_of_t Sexplib.Conv.sexp_of_int
 let t_of_sexp = List.t_of_sexp Sexplib.Conv.int_of_sexp
 
 let empty () = []
 
-let sort l = List.sort ~compare:Pervasives.compare l
+let sort l = List.sort ~compare:Stdlib.compare l
 
-let uniq l = List.dedup_and_sort ~compare:Pervasives.compare l
+let uniq l = List.dedup_and_sort ~compare:Stdlib.compare l
 
 let of_char_list l =
   let rec readlist l g =

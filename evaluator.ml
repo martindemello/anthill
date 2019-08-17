@@ -1,6 +1,5 @@
 open Engine
 open Environment
-open Wordset
 open Core
 open Utility
 
@@ -16,20 +15,20 @@ module Make =
 
     (* validate that list has only letters and dots *)
     let validate_letter_dot cs =
-      List.for_all cs (fun c -> (Char.is_lowercase c) || (c = '.'))
+      List.for_all cs ~f:(fun c -> (Char.is_lowercase c) || (c = '.'))
 
     (* validate that list has only letters and exactly one dot *)
     let validate_fit cs =
       validate_letter_dot cs && 
-      ((List.count cs (fun c -> c = '.')) = 1)
+      ((List.count cs ~f:(fun c -> c = '.')) = 1)
 
     let expand_fit dict cs =
-      let fn = function
+      let f = function
           '.' -> Dot
         | c -> Letter (from_lower c)
       in
       if validate_fit cs then
-        let pat = List.map cs fn in
+        let pat = List.map cs ~f in
         let chars = E.fit dict pat in
         Group (Group.of_char_list chars)
       else
@@ -44,7 +43,7 @@ module Make =
         | Final x -> x
         | Expand f -> expand_group dict f
       in
-      List.map ts expand
+      List.map ts ~f:expand
 
     let single_arg args =
       match args with
@@ -52,15 +51,14 @@ module Make =
       | _ -> Error "Expected: Single argument"
 
     let trail dict args =
-      let open Rresult.R in
-      (single_arg args >>= Parser.parse_rack)
-      |> get_ok
+      Result.bind (single_arg args) ~f:Parser.parse_rack
+      |> Result.ok_or_failwith
       |> expand_rack dict
 
     let length_pattern args =
-      let open Rresult.R in
-      let n = (single_arg args >>= Parser.parse_int) |> get_ok in
-      List.init n (fun _ -> Dot)
+      let n = Result.bind (single_arg args) ~f:Parser.parse_int 
+              |> Result.ok_or_failwith in
+      List.init n ~f:(fun _ -> Dot)
 
     let overlap_pattern pos dict arg =
       let chars = String.to_list arg in
@@ -136,7 +134,7 @@ module Make =
 
     let eval env line =
       match line with
-      | Command c -> env, Wordset.of_list []
+      | Command _ -> env, Wordset.of_list []
       | Expr e -> env, expr env e
       | Tiles arg -> env, expr env (Fun (env.op, [arg]))
       | Assign (v, e) -> begin

@@ -1,7 +1,5 @@
 open Core
-open StdLabels
 open Top
-open Types
 open Utility
 
 let unlines xs =

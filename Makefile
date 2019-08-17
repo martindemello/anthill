@@ -1,17 +1,8 @@
-all: test
+all: anthill
 
-gui:
-	ocamlbuild -cflag -g -use-ocamlfind gtkgui.native
-
-test:
-	ocamlbuild -cflag -g -use-ocamlfind test.native
-
-native:
-	ocamlbuild -use-ocamlfind hex.native
-	cp -L hex.native hex
-
-profile:
-	ocamlbuild -use-ocamlfind hex.p.native
+anthill:
+	dune build main.exe
+	cp _build/default/main.exe anthill
 
 clean:
 	ocamlbuild -clean

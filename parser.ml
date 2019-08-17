@@ -1,5 +1,5 @@
-open Types
 open Utility
+open Types
 open MParser
 open MParser_PCRE
 open Tokens
@@ -9,8 +9,8 @@ module String = Core.String
 let make_group l = Final (Group (Group.of_char_list l))
 let make_uletter l = Final (Letter (from_upper l))
 let make_lletter l = Final (Letter (from_lower l))
-let make_dot l = Final Dot
-let make_star l = Final Star
+let make_dot _ = Final Dot
+let make_star _ = Final Star
 let make_fit l = Expand (Fit l)
 
 let make_fn s =
@@ -116,7 +116,7 @@ let input : (line, unit) parser = line << eof
 let make_parser fn =
   let parse s = match parse_string fn s () with
   | MParser.Success out -> Ok out
-  | MParser.Failed (m, e) -> Error m
+  | MParser.Failed (m, _) -> Error m
   in
   parse
 

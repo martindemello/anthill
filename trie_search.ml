@@ -1,6 +1,4 @@
-open Utility
 open Core
-open Engine
 include Trie
 include Types
 
@@ -16,13 +14,15 @@ let char_of_int i = match Char.of_int (i + 97) with
   | Some c -> c
   | None -> '#'
 
+(*
 let display sw =
   match sw with
   | None -> "[]"
   | Some w -> w
+   *)
 
 let word_of prefix =
-  Some (String.of_char_list (List.map (List.rev prefix) char_of_int))
+  Some (String.of_char_list (List.map (List.rev prefix) ~f:char_of_int))
 
 (*************************************************************************
  * search functions starting from an arbitrary node + prefix
@@ -83,8 +83,8 @@ let _fit trie prefix trail =
       traverse trie prefix trail
   in
   let ws = collecting traversal in
-  let ws = List.filter ws (fun s -> String.length s > 0) in
-  List.map ws (fun s -> s.[0])
+  let ws = List.filter ws ~f:(fun s -> String.length s > 0) in
+  List.map ws ~f:(fun s -> s.[0])
 ;;
 
 (* Build all possible words from a bag and a trie *
@@ -125,15 +125,16 @@ let _anagram trie prefix trail ~all ~multi =
 
 let expand_groups trail =
   let is_group = function Group _ -> true | _ -> false in
-  let (groups, rest) = List.partition_tf trail is_group in
-  let groups = List.map groups (function Group i -> i | _ -> []) in
+  let (groups, rest) = List.partition_tf trail ~f:is_group in
+  let groups = List.map groups ~f:(function Group i -> i | _ -> []) in
   let expanded_groups = Groupset.product groups in
-  List.map expanded_groups (fun i -> List.append (List.map i (fun j -> Letter j)) rest)
+  List.map expanded_groups ~f:(fun i ->
+      List.append (List.map i ~f:(fun j -> Letter j)) rest)
 
 let make_anags trie trail ~multi ~all =
   let trails = expand_groups trail in
   Wordset.union_list (
-    List.map trails (fun trail -> _anagram trie [] trail ~multi ~all))
+    List.map trails ~f:(fun trail -> _anagram trie [] trail ~multi ~all))
 
 module TrieEngine = struct
   type dict = Trie.t
@@ -145,5 +146,5 @@ module TrieEngine = struct
   let anagram trie trail ~multi ~all =
     make_anags trie trail ~multi ~all
 
-  let exists trie string = true
+  let exists _ _ = true
 end
