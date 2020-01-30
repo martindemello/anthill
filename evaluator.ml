@@ -15,12 +15,12 @@ module Make =
 
     (* validate that list has only letters and dots *)
     let validate_letter_dot cs =
-      List.for_all cs ~f:(fun c -> (Char.is_lowercase c) || (c = '.'))
+      List.for_all cs ~f:(fun c -> (Char.is_lowercase c) || (phys_equal c '.'))
 
     (* validate that list has only letters and exactly one dot *)
     let validate_fit cs =
       validate_letter_dot cs && 
-      ((List.count cs ~f:(fun c -> c = '.')) = 1)
+      (List.count cs ~f:(fun c -> phys_equal c '.') = 1)
 
     let expand_fit dict cs =
       let f = function
