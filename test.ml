@@ -12,6 +12,6 @@ let test_pattern env str =
   | Error m -> printf "%s\n" m
 
 let test_from_cmdline =
-  let dict = Trie.load_from_text_file "csw15.lower" in
+  let dict = Trie.load_from_text_file "csw19.lower" in
   let env = {(Librepl.new_env dict) with Env.op = Pattern } in
   test_pattern env "<f.t>."

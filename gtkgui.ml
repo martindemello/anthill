@@ -127,7 +127,7 @@ let () =
   let vb1 = GPack.vbox ~packing:hbox#add () in
   let vb2 = GPack.vbox ~packing:hbox#add () in
 
-  let dict = Trie.load_from_text_file "csw15.lower" in
+  let dict = Trie.load_from_text_file "csw19.lower" in
   let model = ref (new_model dict) in
   let output = new output_widget ~packing:vb2#add () in
   let history = new history_widget ~packing:vb1#add ~model ~output () in
