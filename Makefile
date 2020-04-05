@@ -6,3 +6,4 @@ anthill:
 
 clean:
 	ocamlbuild -clean
+	rm anthill
