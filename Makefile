@@ -1,8 +1,8 @@
 all: anthill
 
 anthill:
-	dune build main.exe
-	cp _build/default/main.exe anthill
+	dune build bin/main.exe
+	cp _build/default/bin/main.exe anthill
 
 clean:
 	ocamlbuild -clean

@@ -1,0 +1,4 @@
+(executable
+ (name main)
+ (libraries anthill core pcre mparser mparser.pcre lwt lambda-term)
+ (preprocess (pps lwt_ppx)))

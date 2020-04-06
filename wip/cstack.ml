@@ -13,8 +13,3 @@ let process stack =
   | Words _   -> stack
   | Op Union  -> union stack
   | Op Inter  -> inter stack
-      
-
-
-
-
