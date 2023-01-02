@@ -7,8 +7,8 @@ let caps_in str =
   String.iter 
   (fun c -> if ((c <= 'Z') && (c >= 'A')) then lst := (c :: !lst) else ()) 
   str;
-  List.sort compare (List.rev !lst);;
+  List.sort Char.compare (List.rev !lst);;
 
 let sort_by f l = 
   let open List in
-  map snd (sort compare (map (fun x -> f x, x) l));;
+  map snd (sort Stdlib.compare (map (fun x -> f x, x) l));;

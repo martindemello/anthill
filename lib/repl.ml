@@ -65,7 +65,7 @@ let rec loop term history env =
       let rl = new read_line ~term ~history:(LTerm_history.contents history) ~prompt in
       let%lwt command = rl#run in
       return (Some command)
-    with Sys.Break ->
+    with Sys_unix.Break ->
       return None
   with
   | Some command ->
